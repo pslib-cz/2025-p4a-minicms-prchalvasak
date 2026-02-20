@@ -1,27 +1,27 @@
-import styles from "./page.module.css";
-// api fetch
-
-async function getAllArticles() {
-  const res = await fetch("http://localhost:3000/api/article", { cache: "no-store" });
-  return await res.json();
-}
+import prisma from "@/lib/prisma";
+import Header from "./components/Header";
 
 export default async function Home() {
-  const articles = await getAllArticles();
+  const articles = await prisma.article.findMany({
+    include: { author: true },
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <div className={styles.intro}>
-          <h1>Nejčtenější články</h1>
-          {articles.map((article: any) => (
-            <a href={`/article/${article.id}`} key={article.id} className={styles.article}>
-              <h2>{article.title}</h2>
-              <p>{article.content.substring(0, 100) + "..."}</p>
-              <p>{article.publishDate}</p>
+    <div>
+      <Header />
+      <main style={{ padding: "16px" }}>
+        <h2>Nejčtenější články</h2>
+        {articles.length === 0 && <p>Žádné články</p>}
+        {articles.map((article: any) => (
+          <div key={article.id} style={{ marginBottom: "16px", padding: "12px", border: "1px solid #ddd" }}>
+            <a href={`/article/${article.id}`}>
+              <h3>{article.title}</h3>
             </a>
-          ))}
-        </div>
+            <p>{article.content.substring(0, 150)}...</p>
+            <small>Autor: {article.author.name} | {new Date(article.publishDate).toLocaleDateString("cs-CZ")}</small>
+          </div>
+        ))}
       </main>
     </div>
   );
