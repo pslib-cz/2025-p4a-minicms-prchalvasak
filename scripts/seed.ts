@@ -1,6 +1,15 @@
-import prisma from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 async function main() {
+    // Clean up existing data
+    await prisma.review.deleteMany();
+    await prisma.article.deleteMany();
+    await prisma.account.deleteMany();
+    await prisma.session.deleteMany();
+    await prisma.user.deleteMany();
+
     const hashedPassword = "$2b$10$gYchWt4JKkHH1khcbVzMy.v2I.E7Or3A62nbuvVTWpQVTNKn3k5Si";
     const user = await prisma.user.create({
         data: {
@@ -9,6 +18,15 @@ async function main() {
             hashedPassword,
         },
     });
+
+    const user2 = await prisma.user.create({
+        data: {
+            name: "Druhý uživatel",
+            email: "druhy@test.cz",
+            hashedPassword,
+        },
+    });
+
     const article = await prisma.article.create({
         data: {
             title: "První zážitek s psychedeliky a znovuzrození mýtických postav z 13. století",
@@ -18,20 +36,33 @@ async function main() {
             authorId: user.id,
         },
     });
-    const review = await prisma.review.create({
+
+    await prisma.review.create({
         data: {
             rating: 5,
             comment: "Skvělý článek!",
             articleId: article.id,
+            authorId: user2.id,
         },
     });
-    const review2 = await prisma.review.create({
+
+    await prisma.review.create({
         data: {
             rating: 0,
             comment: "ubohost.",
             articleId: article.id,
+            authorId: user.id,
         },
     });
+
+    console.log("Seed complete!");
 }
 
-main();
+main()
+    .catch((e) => {
+        console.error(e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });

@@ -1,74 +1,79 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
+
 generator client {
-  provider        = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 model Article {
-    id String @id @default(cuid())
-    title String
-    slug String @unique
-    content String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id          String     @id @default(cuid())
+    title       String
+    slug        String     @unique
+    content     String
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
     publishDate DateTime
-    reviews Review[]
-    categories Category[]
-    authorId String
-    author User @relation(fields: [authorId], references: [id])
+    reviews     Review[]
+    categories  Category[]
+    authorId    String
+    author      User       @relation("UserArticles", fields: [authorId], references: [id])
 }
 
 model Review {
     // CSFD vzor - 0-5 hvezdicek + komentar
-    id String @id @default(cuid())
-    rating Int
-    comment String
+    id        String   @id @default(cuid())
+    rating    Int
+    comment   String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     articleId String
-    article Article @relation(fields: [articleId], references: [id])
+    article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+    authorId  String
+    author    User     @relation("UserReviews", fields: [authorId], references: [id])
 }
 
 model Category {
-    id String @id @default(cuid())
-    name String
+    id       String    @id @default(cuid())
+    name     String
     articles Article[]
 }
 
 model User {
-    id String @id @default(cuid())
-    name String
-    email String @unique
+    id             String    @id @default(cuid())
+    name           String
+    email          String    @unique
     hashedPassword String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    articles Article[]
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+    articles       Article[] @relation("UserArticles")
+    reviews        Review[]  @relation("UserReviews")
     // nextauth
-    accounts Account[]
-    sessions Session[]
+    accounts       Account[]
+    sessions       Session[]
 }
+
 model Account {
-    id String @id @default(cuid())
-    userId String
-    type String
-    provider String
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
     providerAccountId String
-    refresh_token String?
-    access_token String?
-    expires_at Int?
-    token_type String?
-    scope String?
-    id_token String?
-    session_state String?
-    user User @relation(fields: [userId], references: [id])
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id])
 }
 
 model Session {
-    id String @id @default(cuid())
-    sessionToken String @unique
-    userId String
-    expires DateTime
-    user User @relation(fields: [userId], references: [id])
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id])
 }
