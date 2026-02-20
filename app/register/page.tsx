@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -11,25 +12,31 @@ export default function LoginPage() {
         e.preventDefault();
         setError("");
 
-        const result = await fetch("/api/auth/signin", {
+        const result = await fetch("/api/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ name, email, password }),
         });
 
         if (result.ok) {
             window.location.href = "/";
         } else {
-            setError("Neplatný email nebo heslo");
+            setError("Registrace selhala");
         }
     };
 
     return (
         <div>
-            <h1>Login</h1>
+            <h1>Registrace</h1>
             <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    placeholder="Jméno"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                />
                 <input
                     type="email"
                     placeholder="Email"
@@ -42,8 +49,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <button type="submit">Přihlásit se</button>
-                <a href="/register">Nemáte účet? Zaregistrujte se</a>
+                <button type="submit">Zaregistrovat se</button>
             </form>
         </div>
     );
