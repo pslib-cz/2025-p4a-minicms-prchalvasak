@@ -37,34 +37,49 @@ export default function LoginPage() {
     };
 
     return (
-        <div style={{ padding: "16px" }}>
-            <h1>Login</h1>
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: "8px" }}>
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </div>
-                <div style={{ marginBottom: "8px" }}>
-                    <input
-                        type="password"
-                        placeholder="Heslo"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit" disabled={loading}>
-                    {loading ? "Přihlašování..." : "Přihlásit se"}
-                </button>
-                <br />
-                <a href="/register">Nemáte účet? Zaregistrujte se</a>
-            </form>
+        <div className="auth-wrapper">
+            <div className="card auth-card animate-in">
+                <h1>Přihlášení</h1>
+                <p className="auth-subtitle">Vítejte zpět v MiniCMS</p>
+
+                {error && <p className="error-text" style={{ marginBottom: "20px" }}>{error}</p>}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label className="form-label">Email</label>
+                        <input
+                            className="input"
+                            type="email"
+                            placeholder="vas@email.cz"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Heslo</label>
+                        <input
+                            className="input"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        className="btn btn-accent"
+                        style={{ width: "100%", marginTop: "24px" }}
+                        disabled={loading}
+                    >
+                        {loading ? "Přihlašování..." : "Přihlásit se"}
+                    </button>
+                </form>
+                <p className="auth-footer">
+                    Nemáte účet? <a href="/register">Zaregistrujte se</a>
+                </p>
+            </div>
         </div>
     );
 }

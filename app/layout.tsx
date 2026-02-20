@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-inter",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const playfair = Playfair_Display({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-playfair",
 });
 
 export const metadata: Metadata = {
@@ -24,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="cs" className={`${inter.variable} ${playfair.variable}`}>
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

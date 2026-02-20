@@ -28,29 +28,59 @@ export default function RegisterPage() {
     };
 
     return (
-        <div>
-            <h1>Registrace</h1>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Jméno"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Heslo"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button type="submit">Zaregistrovat se</button>
-            </form>
+        <div className="auth-wrapper">
+            <div className="card auth-card animate-in">
+                <h1>Registrace</h1>
+                <p className="auth-subtitle">Vytvořte si účet v MiniCMS</p>
+
+                {error && <p className="error-text" style={{ marginBottom: "20px" }}>{error}</p>}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label className="form-label">Jméno</label>
+                        <input
+                            className="input"
+                            type="text"
+                            placeholder="Jan Novák"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Email</label>
+                        <input
+                            className="input"
+                            type="email"
+                            placeholder="vas@email.cz"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Heslo</label>
+                        <input
+                            className="input"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        className="btn btn-accent"
+                        style={{ width: "100%", marginTop: "24px" }}
+                    >
+                        Zaregistrovat se
+                    </button>
+                </form>
+                <p className="auth-footer">
+                    Máte účet? <a href="/login">Přihlaste se</a>
+                </p>
+            </div>
         </div>
     );
 }
