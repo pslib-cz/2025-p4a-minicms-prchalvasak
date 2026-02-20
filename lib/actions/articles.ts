@@ -1,7 +1,12 @@
 import prisma from "@/lib/prisma";
 
 export async function getArticles() {
-    return prisma.article.findMany();
+    return prisma.article.findMany({
+        include: {
+            author: true,
+        },
+        orderBy: { createdAt: "desc" },
+    });
 }
 
 export async function getArticle(id: string) {
@@ -13,6 +18,7 @@ export async function getArticle(id: string) {
                 include: {
                     author: true,
                 },
+                orderBy: { createdAt: "desc" },
             },
         },
     });

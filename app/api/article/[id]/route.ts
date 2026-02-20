@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { getArticle, updateArticle, deleteArticle } from "@/lib/actions/articles";
 
 export async function GET(
@@ -30,7 +31,31 @@ export async function PUT(
     { params }: { params: { id: string } }
 ) {
     try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return NextResponse.json(
+                { error: "Musíte být přihlášeni" },
+                { status: 401 }
+            );
+        }
+
         const { id } = await params;
+
+        const existing = await getArticle(id);
+        if (!existing) {
+            return NextResponse.json(
+                { error: "Článek nenalezen" },
+                { status: 404 }
+            );
+        }
+
+        if (existing.authorId !== session.user.id) {
+            return NextResponse.json(
+                { error: "Nemáte oprávnění upravovat tento článek" },
+                { status: 403 }
+            );
+        }
+
         const { title, content, publishDate } = await request.json();
 
         if (!title || !content || !publishDate) {
@@ -40,7 +65,7 @@ export async function PUT(
             );
         }
 
-        const article = await updateArticle(id, title, content, publishDate);
+        const article = await updateArticle(id, title, content, new Date(publishDate));
 
         return NextResponse.json(article, { status: 200 });
     } catch (error) {
@@ -56,7 +81,31 @@ export async function DELETE(
     { params }: { params: { id: string } }
 ) {
     try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return NextResponse.json(
+                { error: "Musíte být přihlášeni" },
+                { status: 401 }
+            );
+        }
+
         const { id } = await params;
+
+        const existing = await getArticle(id);
+        if (!existing) {
+            return NextResponse.json(
+                { error: "Článek nenalezen" },
+                { status: 404 }
+            );
+        }
+
+        if (existing.authorId !== session.user.id) {
+            return NextResponse.json(
+                { error: "Nemáte oprávnění smazat tento článek" },
+                { status: 403 }
+            );
+        }
+
         const article = await deleteArticle(id);
 
         return NextResponse.json({ id: article.id }, { status: 200 });
