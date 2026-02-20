@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Header from "@/app/components/Header";
 
 export default function EditArticlePage() {
     const { id } = useParams<{ id: string }>();
@@ -60,47 +61,90 @@ export default function EditArticlePage() {
         }
     };
 
-    if (loading || status === "loading") return <div style={{ padding: "16px" }}>Načítání...</div>;
-    if (notAuthor) return <div style={{ padding: "16px" }}><p>Nemáte oprávnění upravovat tento článek.</p><a href="/">← Zpět</a></div>;
-    if (error) return <div style={{ padding: "16px" }}><p>{error}</p><a href="/">← Zpět</a></div>;
+    if (loading || status === "loading") return (
+        <div className="page-wrapper">
+            <Header />
+            <div className="container" style={{ paddingTop: "48px" }}>
+                <p style={{ color: "var(--color-text-muted)" }}>Načítání...</p>
+            </div>
+        </div>
+    );
+
+    if (notAuthor) return (
+        <div className="page-wrapper">
+            <Header />
+            <div className="container" style={{ paddingTop: "48px" }}>
+                <p style={{ color: "var(--color-error)", marginBottom: "16px" }}>Nemáte oprávnění upravovat tento článek.</p>
+                <a href="/" className="btn btn-sm">← Zpět</a>
+            </div>
+        </div>
+    );
+
+    if (error && !title) return (
+        <div className="page-wrapper">
+            <Header />
+            <div className="container" style={{ paddingTop: "48px" }}>
+                <p style={{ color: "var(--color-error)", marginBottom: "16px" }}>{error}</p>
+                <a href="/" className="btn btn-sm">← Zpět</a>
+            </div>
+        </div>
+    );
 
     return (
-        <div style={{ padding: "16px" }}>
-            <a href={`/article/${id}`}>← Zpět na článek</a>
-            <h1>Upravit článek</h1>
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: "8px" }}>
-                    <label>Název:</label><br />
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                        style={{ width: "100%" }}
-                    />
+        <div className="page-wrapper">
+            <Header />
+            <main className="container" style={{ paddingTop: "48px", paddingBottom: "80px", maxWidth: "680px" }}>
+                <a href={`/article/${id}`} className="meta" style={{
+                    display: "inline-block",
+                    marginBottom: "32px",
+                    color: "var(--color-text-muted)",
+                }}>
+                    ← Zpět na článek
+                </a>
+
+                <div className="card animate-in">
+                    <h1 style={{ marginBottom: "8px" }}>Upravit článek</h1>
+                    <span className="accent-line" style={{ marginBottom: "28px" }} />
+
+                    {error && <p className="error-text" style={{ marginBottom: "20px" }}>{error}</p>}
+
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label className="form-label">Název</label>
+                            <input
+                                className="input"
+                                type="text"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Obsah</label>
+                            <textarea
+                                className="textarea"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                required
+                                rows={10}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Datum publikace</label>
+                            <input
+                                className="input"
+                                type="date"
+                                value={publishDate}
+                                onChange={(e) => setPublishDate(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <button type="submit" className="btn btn-accent" style={{ marginTop: "24px" }}>
+                            Uložit změny
+                        </button>
+                    </form>
                 </div>
-                <div style={{ marginBottom: "8px" }}>
-                    <label>Obsah:</label><br />
-                    <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        required
-                        rows={10}
-                        style={{ width: "100%" }}
-                    />
-                </div>
-                <div style={{ marginBottom: "8px" }}>
-                    <label>Datum publikace:</label><br />
-                    <input
-                        type="date"
-                        value={publishDate}
-                        onChange={(e) => setPublishDate(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit">Uložit změny</button>
-            </form>
+            </main>
         </div>
     );
 }
