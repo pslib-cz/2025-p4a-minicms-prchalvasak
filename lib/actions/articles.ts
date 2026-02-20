@@ -7,6 +7,14 @@ export async function getArticles() {
 export async function getArticle(id: string) {
     return prisma.article.findUnique({
         where: { id },
+        include: {
+            author: true,
+            reviews: {
+                include: {
+                    author: true,
+                },
+            },
+        },
     });
 }
 
