@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getSession, signIn } from "next-auth/react";
+import { validateLoginInput } from "@/lib/validation";
 
 export default function LoginPage() {
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -14,23 +18,30 @@ export default function LoginPage() {
         setError("");
         setLoading(true);
 
+        const validationError = validateLoginInput({ email, password });
+        if (validationError) {
+            setError(validationError);
+            setLoading(false);
+            return;
+        }
+
         try {
             const result = await signIn("credentials", {
                 email,
                 password,
+                callbackUrl: "/",
                 redirect: false,
             });
-
-            console.log("signIn result:", result);
 
             if (result?.error) {
                 setError("Neplatný email nebo heslo");
                 setLoading(false);
             } else {
-                window.location.href = "/";
+                await getSession();
+                router.replace("/");
+                router.refresh();
             }
-        } catch (err) {
-            console.error("signIn error:", err);
+        } catch {
             setError("Přihlášení selhalo");
             setLoading(false);
         }
@@ -38,7 +49,7 @@ export default function LoginPage() {
 
     return (
         <div className="auth-wrapper">
-            <div className="card auth-card animate-in">
+            <div className="card auth-card">
                 <h1>Přihlášení</h1>
                 <p className="auth-subtitle">Vítejte zpět v MiniCMS</p>
 
@@ -77,7 +88,7 @@ export default function LoginPage() {
                     </button>
                 </form>
                 <p className="auth-footer">
-                    Nemáte účet? <a href="/register">Zaregistrujte se</a>
+                    Nemáte účet? <Link href="/register">Zaregistrujte se</Link>
                 </p>
             </div>
         </div>

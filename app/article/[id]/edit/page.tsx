@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/app/components/Header";
 
@@ -64,7 +65,7 @@ export default function EditArticlePage() {
     if (loading || status === "loading") return (
         <div className="page-wrapper">
             <Header />
-            <div className="container" style={{ paddingTop: "48px" }}>
+            <div className="container" style={{ paddingTop: "40px" }}>
                 <p style={{ color: "var(--color-text-muted)" }}>Načítání...</p>
             </div>
         </div>
@@ -73,9 +74,9 @@ export default function EditArticlePage() {
     if (notAuthor) return (
         <div className="page-wrapper">
             <Header />
-            <div className="container" style={{ paddingTop: "48px" }}>
+            <div className="container" style={{ paddingTop: "40px" }}>
                 <p style={{ color: "var(--color-error)", marginBottom: "16px" }}>Nemáte oprávnění upravovat tento článek.</p>
-                <a href="/" className="btn btn-sm">← Zpět</a>
+                <Link href="/" className="btn btn-sm">← Zpět</Link>
             </div>
         </div>
     );
@@ -83,9 +84,9 @@ export default function EditArticlePage() {
     if (error && !title) return (
         <div className="page-wrapper">
             <Header />
-            <div className="container" style={{ paddingTop: "48px" }}>
+            <div className="container" style={{ paddingTop: "40px" }}>
                 <p style={{ color: "var(--color-error)", marginBottom: "16px" }}>{error}</p>
-                <a href="/" className="btn btn-sm">← Zpět</a>
+                <Link href="/" className="btn btn-sm">← Zpět</Link>
             </div>
         </div>
     );
@@ -93,16 +94,12 @@ export default function EditArticlePage() {
     return (
         <div className="page-wrapper">
             <Header />
-            <main className="container" style={{ paddingTop: "48px", paddingBottom: "80px", maxWidth: "680px" }}>
-                <a href={`/article/${id}`} className="meta" style={{
-                    display: "inline-block",
-                    marginBottom: "32px",
-                    color: "var(--color-text-muted)",
-                }}>
+            <main className="container" style={{ paddingTop: "40px", paddingBottom: "72px", maxWidth: "680px" }}>
+                <Link href={`/article/${id}`} className="back-link">
                     ← Zpět na článek
-                </a>
+                </Link>
 
-                <div className="card animate-in">
+                <div className="card">
                     <h1 style={{ marginBottom: "8px" }}>Upravit článek</h1>
                     <span className="accent-line" style={{ marginBottom: "28px" }} />
 

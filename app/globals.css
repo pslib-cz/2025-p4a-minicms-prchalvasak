@@ -2,8 +2,6 @@
    MiniCMS — Neo-Editorial Design System
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
-
 /* --- Design Tokens --- */
 :root {
   --color-bg: #1a1a1e;
@@ -21,8 +19,8 @@
   --color-error: #e85c4a;
   --color-success: #5cb87a;
 
-  --font-heading: var(--font-playfair), 'Playfair Display', 'Georgia', serif;
-  --font-body: var(--font-inter), 'Inter', 'Segoe UI', sans-serif;
+  --font-heading: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --font-body: "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -181,6 +179,11 @@ p {
   font-size: 0.85rem;
 }
 
+.btn-disabled {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
 /* --- Inputs --- */
 .input, .textarea, .select-input {
   width: 100%;
@@ -322,6 +325,30 @@ p {
   color: var(--color-text-muted);
 }
 
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: rgba(232, 168, 73, 0.08);
+  color: var(--color-accent);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+/* --- Back link --- */
+.back-link {
+  display: inline-block;
+  margin-bottom: 32px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+.back-link:hover {
+  color: var(--color-accent);
+}
+
 /* --- Page wrapper --- */
 .page-wrapper {
   padding-top: 80px;
@@ -332,6 +359,16 @@ p {
   padding: 48px 0;
 }
 
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.85fr);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(200px, 0.8fr) auto;
+}
+
 /* --- Responsive --- */
 @media (max-width: 640px) {
   h1 { font-size: 1.8rem; }
@@ -339,4 +376,17 @@ p {
   .card { padding: 20px 18px; }
   .container { padding: 0 16px; }
   .auth-wrapper { padding: 16px; }
+  .filters-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  header {
+    padding: 0 16px !important;
+  }
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .filters-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
