@@ -3,6 +3,11 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { createArticle } from "@/lib/actions/articles";
 import prisma from "@/lib/prisma";
+import {
+    normalizeStringArray,
+    normalizeTextInput,
+    validateArticleInput,
+} from "@/lib/validation";
 
 export async function POST(request: Request) {
     try {
@@ -14,18 +19,36 @@ export async function POST(request: Request) {
             );
         }
 
-        const { title, content, publishDate } = await request.json();
+        const body = await request.json();
+        const title = normalizeTextInput(body.title);
+        const content = normalizeTextInput(body.content);
+        const publishDate = normalizeTextInput(body.publishDate);
+        const categoryIds = normalizeStringArray(body.categoryIds);
 
-        if (!title || !content || !publishDate) {
+        const validationError = validateArticleInput({
+            title,
+            content,
+            publishDate,
+            categoryIds,
+        });
+
+        if (validationError) {
             return NextResponse.json(
-                { error: "Všechna pole jsou povinná" },
+                { error: validationError },
                 { status: 400 }
             );
         }
 
-        const article = await createArticle(title, content, new Date(publishDate), session.user.id);
+        const article = await createArticle(
+            title,
+            content,
+            new Date(publishDate),
+            session.user.id,
+            categoryIds,
+        );
 
         revalidatePath("/");
+        revalidatePath("/dashboard");
 
         return NextResponse.json(article, { status: 201 });
     } catch (error) {
@@ -39,7 +62,10 @@ export async function POST(request: Request) {
 export async function GET() {
     try {
         const articles = await prisma.article.findMany({
-            include: { author: true },
+            include: {
+                author: true,
+                categories: true,
+            },
             orderBy: { createdAt: "desc" },
         });
         return NextResponse.json(articles, { status: 200 });

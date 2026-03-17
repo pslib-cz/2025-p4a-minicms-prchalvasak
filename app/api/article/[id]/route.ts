@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { getArticle, updateArticle, deleteArticle } from "@/lib/actions/articles";
+import {
+    normalizeStringArray,
+    normalizeTextInput,
+    validateArticleInput,
+} from "@/lib/validation";
 
 export async function GET(
     request: Request,
@@ -57,18 +62,36 @@ export async function PUT(
             );
         }
 
-        const { title, content, publishDate } = await request.json();
+        const body = await request.json();
+        const title = normalizeTextInput(body.title);
+        const content = normalizeTextInput(body.content);
+        const publishDate = normalizeTextInput(body.publishDate);
+        const categoryIds = normalizeStringArray(body.categoryIds);
 
-        if (!title || !content || !publishDate) {
+        const validationError = validateArticleInput({
+            title,
+            content,
+            publishDate,
+            categoryIds,
+        });
+
+        if (validationError) {
             return NextResponse.json(
-                { error: "Všechna pole jsou povinná" },
+                { error: validationError },
                 { status: 400 }
             );
         }
 
-        const article = await updateArticle(id, title, content, new Date(publishDate));
+        const article = await updateArticle(
+            id,
+            title,
+            content,
+            new Date(publishDate),
+            categoryIds,
+        );
 
         revalidatePath("/");
+        revalidatePath("/dashboard");
         revalidatePath(`/article/${id}`);
 
         return NextResponse.json(article, { status: 200 });
@@ -113,6 +136,7 @@ export async function DELETE(
         const article = await deleteArticle(id);
 
         revalidatePath("/");
+        revalidatePath("/dashboard");
 
         return NextResponse.json({ id: article.id }, { status: 200 });
     } catch (error) {
