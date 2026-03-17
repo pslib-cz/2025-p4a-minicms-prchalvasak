@@ -337,6 +337,43 @@ p {
   line-height: 1;
 }
 
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.choice-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-input);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.choice-tile:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.choice-tile-active {
+  border-color: var(--color-accent);
+  background: rgba(232, 168, 73, 0.1);
+  color: var(--color-text);
+}
+
+.choice-checkbox {
+  accent-color: var(--color-accent);
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
 /* --- Back link --- */
 .back-link {
   display: inline-block;

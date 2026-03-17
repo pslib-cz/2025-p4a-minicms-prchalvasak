@@ -25,9 +25,11 @@ export default function LoginPage() {
             return;
         }
 
+        const normalizedEmail = email.trim().toLowerCase();
+
         try {
             const result = await signIn("credentials", {
-                email,
+                email: normalizedEmail,
                 password,
                 callbackUrl: "/",
                 redirect: false,

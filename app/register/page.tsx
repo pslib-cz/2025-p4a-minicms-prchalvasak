@@ -26,17 +26,20 @@ export default function RegisterPage() {
             return;
         }
 
+        const normalizedName = name.trim();
+        const normalizedEmail = email.trim().toLowerCase();
+
         const result = await fetch("/api/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ name, email, password }),
+            body: JSON.stringify({ name: normalizedName, email: normalizedEmail, password }),
         });
 
         if (result.ok) {
             const loginResult = await signIn("credentials", {
-                email,
+                email: normalizedEmail,
                 password,
                 callbackUrl: "/",
                 redirect: false,
