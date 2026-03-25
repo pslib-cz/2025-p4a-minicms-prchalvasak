@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import Providers from "./providers";
+import CookieConsent from "./components/CookieConsent";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -27,6 +29,7 @@ export default function RootLayout({
     <html lang="cs" className={`${inter.variable} ${playfair.variable}`}>
       <body>
         <Providers>{children}</Providers>
+        <CookieConsent />
       </body>
     </html>
   );

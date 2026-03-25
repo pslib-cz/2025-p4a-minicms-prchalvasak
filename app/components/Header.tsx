@@ -55,6 +55,9 @@ export default function Header() {
                         <span style={{ color: "var(--color-text-secondary)" }}>
                             {session.user.name}
                         </span>
+                        <a href="/dashboard" className="btn btn-sm" style={{ textDecoration: "none" }}>
+                            Dashboard
+                        </a>
                         <a href="/article/new" className="btn btn-accent btn-sm" style={{ textDecoration: "none" }}>
                             + Nový článek
                         </a>
