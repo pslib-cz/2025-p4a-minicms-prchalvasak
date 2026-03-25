@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MiniCMS
 
-## Getting Started
+Publikační platforma postavená na **Next.js** (App Router) s Prisma ORM a NextAuth autentizací.
 
-First, run the development server:
+## Popis aplikace
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+MiniCMS je webová aplikace pro publikování článků s recenzním systémem. Uživatelé mohou vytvářet, editovat a publikovat články s WYSIWYG editorem, přidávat recenze s hvězdičkovým hodnocením a organizovat obsah pomocí kategorií.
+
+## Datový model
+
+```
+User 1:N Article (autor článků)
+User 1:N Review (autor recenzí)
+Article 1:N Review (recenze článku)
+Article N:M Category (kategorizace)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Entity:**
+- **User** – jméno, email, heslo (hashed)
+- **Article** – title, slug, content, published, publishDate, createdAt, updatedAt
+- **Review** – rating (0–5), comment, createdAt, updatedAt
+- **Category** – name
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Funkce
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Veřejná část
+- Seznam publikovaných článků (Server Component)
+- Vyhledávání podle title/textu
+- Filtrování podle kategorií
+- Stránkování
+- Detail článku s recenzemi
+- SEO: dynamická metadata, OpenGraph, canonical URL, sitemap.xml, robots.txt
 
-## Learn More
+### Dashboard
+- Seznam vlastních článků se stránkováním
+- Vytvoření/editace článku s WYSIWYG editorem (React Quill)
+- Smazání článku
+- Přepínání draft/published
+- Správa kategorií u článků
+- Formulářová validace
 
-To learn more about Next.js, take a look at the following resources:
+### API
+- CRUD operace pro články (`/api/article`)
+- CRUD operace pro recenze (`/api/review`)
+- Kategorie (`/api/category`)
+- Kontrola přihlášení a vlastnictví dat
+- Server-side validace
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Analytika
+- Microsoft Clarity (podmíněno souhlasem s cookies)
+- Cookie consent banner
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Next.js funkce
+- `revalidate` / ISR na veřejných stránkách
+- Dynamická metadata (`generateMetadata`)
+- Dynamic routes (`/article/[id]`)
 
-## Deploy on Vercel
+## Tech stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Next.js 16 (App Router)
+- Prisma ORM + PostgreSQL
+- NextAuth (credentials provider)
+- React Bootstrap
+- React Quill (WYSIWYG)
+- Lucide React (ikony)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Spuštění
+
+```bash
+# 1. Naklonovat repozitář
+git clone <repo-url>
+cd 2025-p4a-minicms-prchalvasak
+
+# 2. Nainstalovat závislosti
+npm install
+
+# 3. Nastavit prostředí
+cp .env.example .env
+# Upravte .env – nastavte DATABASE_URL a AUTH_SECRET
+
+# 4. Spustit migrace
+npx prisma migrate dev
+
+# 5. Naplnit databázi demo daty
+npm run db:seed
+
+# 6. Spustit vývojový server
+npm run dev
+```
+
