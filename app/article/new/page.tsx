@@ -1,9 +1,13 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/app/components/Header";
+import dynamic from "next/dynamic";
+import "react-quill-new/dist/quill.snow.css";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 export default function NewArticlePage() {
     const { data: session, status } = useSession();
@@ -11,7 +15,14 @@ export default function NewArticlePage() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [publishDate, setPublishDate] = useState(new Date().toISOString().split("T")[0]);
+    const [published, setPublished] = useState(false);
+    const [categories, setCategories] = useState<any[]>([]);
+    const [selectedCats, setSelectedCats] = useState<string[]>([]);
     const [error, setError] = useState("");
+
+    useEffect(() => {
+        fetch("/api/category").then(r => r.json()).then(setCategories).catch(() => { });
+    }, []);
 
     if (status === "loading") return (
         <div className="page-wrapper">
@@ -43,7 +54,7 @@ export default function NewArticlePage() {
         const res = await fetch("/api/article", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, content, publishDate }),
+            body: JSON.stringify({ title, content, publishDate, published, categoryIds: selectedCats }),
         });
 
         if (res.ok) {
@@ -105,6 +116,16 @@ export default function NewArticlePage() {
                                 onChange={(e) => setPublishDate(e.target.value)}
                                 required
                             />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Kategorie</label>
+                            <select className="select-input" multiple value={selectedCats} onChange={(e) => setSelectedCats(Array.from(e.target.selectedOptions, o => o.value))} style={{ minHeight: "80px" }}>
+                                {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                        </div>
+                        <div className="form-group" style={{ flexDirection: "row", alignItems: "center", gap: "10px" }}>
+                            <input type="checkbox" id="published" checked={published} onChange={(e) => setPublished(e.target.checked)} />
+                            <label htmlFor="published" style={{ fontSize: "0.95rem", cursor: "pointer" }}>Publikovat ihned</label>
                         </div>
                         <button type="submit" className="btn btn-accent" style={{ marginTop: "24px" }}>
                             Vytvořit článek

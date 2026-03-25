@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
-import { createArticle } from "@/lib/actions/articles";
-import prisma from "@/lib/prisma";
+import { createArticle, getArticles } from "@/lib/actions/articles";
+
 
 export async function POST(request: Request) {
     try {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const { title, content, publishDate } = await request.json();
+        const { title, content, publishDate, published, categoryIds } = await request.json();
 
         if (!title || !content || !publishDate) {
             return NextResponse.json(
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const article = await createArticle(title, content, new Date(publishDate), session.user.id);
+        const article = await createArticle(title, content, new Date(publishDate), session.user.id, published ?? false, categoryIds ?? []);
 
         revalidatePath("/");
 
@@ -36,13 +36,29 @@ export async function POST(request: Request) {
     }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        const articles = await prisma.article.findMany({
-            include: { author: true },
-            orderBy: { createdAt: "desc" },
+        const { searchParams } = new URL(request.url);
+        const search = searchParams.get("search") || undefined;
+        const category = searchParams.get("category") || undefined;
+        const page = parseInt(searchParams.get("page") || "1");
+        const pageSize = parseInt(searchParams.get("pageSize") || "10");
+        const mine = searchParams.get("mine") === "true";
+
+        let authorId: string | undefined;
+        if (mine) {
+            const session = await auth();
+            if (!session?.user?.id) {
+                return NextResponse.json({ error: "Musíte být přihlášeni" }, { status: 401 });
+            }
+            authorId = session.user.id;
+        }
+
+        const result = await getArticles({
+            search, category, page, pageSize, authorId,
+            publishedOnly: mine ? false : true,
         });
-        return NextResponse.json(articles, { status: 200 });
+        return NextResponse.json(result, { status: 200 });
     } catch (error) {
         return NextResponse.json(
             { error: "Získání článků selhalo" },

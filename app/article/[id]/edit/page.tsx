@@ -4,6 +4,10 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/app/components/Header";
+import dynamic from "next/dynamic";
+import "react-quill-new/dist/quill.snow.css";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 export default function EditArticlePage() {
     const { id } = useParams<{ id: string }>();
@@ -12,6 +16,9 @@ export default function EditArticlePage() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [publishDate, setPublishDate] = useState("");
+    const [published, setPublished] = useState(false);
+    const [categories, setCategories] = useState<any[]>([]);
+    const [selectedCats, setSelectedCats] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [notAuthor, setNotAuthor] = useState(false);
@@ -37,10 +44,13 @@ export default function EditArticlePage() {
             setTitle(data.title);
             setContent(data.content);
             setPublishDate(new Date(data.publishDate).toISOString().split("T")[0]);
+            setPublished(data.published || false);
+            setSelectedCats(data.categories?.map((c: any) => c.id) || []);
             setLoading(false);
         };
 
         load();
+        fetch("/api/category").then(r => r.json()).then(setCategories).catch(() => {});
     }, [id, session, status]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +60,7 @@ export default function EditArticlePage() {
         const res = await fetch(`/api/article/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, content, publishDate }),
+            body: JSON.stringify({ title, content, publishDate, published, categoryIds: selectedCats }),
         });
 
         if (res.ok) {
@@ -121,13 +131,7 @@ export default function EditArticlePage() {
                         </div>
                         <div className="form-group">
                             <label className="form-label">Obsah</label>
-                            <textarea
-                                className="textarea"
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                required
-                                rows={10}
-                            />
+                            <ReactQuill theme="snow" value={content} onChange={setContent} />
                         </div>
                         <div className="form-group">
                             <label className="form-label">Datum publikace</label>
@@ -138,6 +142,16 @@ export default function EditArticlePage() {
                                 onChange={(e) => setPublishDate(e.target.value)}
                                 required
                             />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Kategorie</label>
+                            <select className="select-input" multiple value={selectedCats} onChange={(e) => setSelectedCats(Array.from(e.target.selectedOptions, o => o.value))} style={{ minHeight: "80px" }}>
+                                {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                        </div>
+                        <div className="form-group" style={{ flexDirection: "row", alignItems: "center", gap: "10px" }}>
+                            <input type="checkbox" id="published" checked={published} onChange={(e) => setPublished(e.target.checked)} />
+                            <label htmlFor="published" style={{ fontSize: "0.95rem", cursor: "pointer" }}>Publikováno</label>
                         </div>
                         <button type="submit" className="btn btn-accent" style={{ marginTop: "24px" }}>
                             Uložit změny

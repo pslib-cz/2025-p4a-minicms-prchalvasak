@@ -57,7 +57,7 @@ export async function PUT(
             );
         }
 
-        const { title, content, publishDate } = await request.json();
+        const { title, content, publishDate, published, categoryIds } = await request.json();
 
         if (!title || !content || !publishDate) {
             return NextResponse.json(
@@ -66,7 +66,7 @@ export async function PUT(
             );
         }
 
-        const article = await updateArticle(id, title, content, new Date(publishDate));
+        const article = await updateArticle(id, title, content, new Date(publishDate), published, categoryIds);
 
         revalidatePath("/");
         revalidatePath(`/article/${id}`);
