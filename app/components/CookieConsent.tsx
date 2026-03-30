@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Alert, Button, Stack } from "react-bootstrap";
 
 const TRACKING_CONSENT_KEY = "tracking-consent";
 const CONSENT_MAX_AGE = 60 * 60 * 24 * 180;
@@ -37,39 +36,35 @@ export default function CookieConsent() {
 
   return (
     <div className="cookie-banner">
-      <Alert variant="dark" className="mb-0 cookie-banner-alert">
-        <div className="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
-          <div>
-            <strong>Souhlas se statistikami</strong>
-            <div className="text-secondary small mt-1">
-              Používáme Google Analytics pouze pro pageview statistiky. Když tracking odmítnete,
-              aplikace zůstane plně funkční.
-            </div>
+      <div className="cookie-banner-inner">
+        <div>
+          <div className="cookie-banner-title">Souhlas se statistikami</div>
+          <div className="cookie-banner-desc">
+            Pouzivame Google Analytics pouze pro pageview statistiky. Kdyz tracking odmitnete,
+            aplikace zustane plne funkcni.
           </div>
-          <Stack direction="horizontal" gap={2}>
-            <Button
-              variant="outline-light"
-              size="sm"
-              onClick={() => {
-                persistConsent("declined");
-                setVisible(false);
-              }}
-            >
-              Nepovolit
-            </Button>
-            <Button
-              variant="warning"
-              size="sm"
-              onClick={() => {
-                persistConsent("accepted");
-                setVisible(false);
-              }}
-            >
-              Povolit analytiku
-            </Button>
-          </Stack>
         </div>
-      </Alert>
+        <div className="cookie-banner-actions">
+          <button
+            className="btn btn-sm"
+            onClick={() => {
+              persistConsent("declined");
+              setVisible(false);
+            }}
+          >
+            Nepovolit
+          </button>
+          <button
+            className="btn btn-accent btn-sm"
+            onClick={() => {
+              persistConsent("accepted");
+              setVisible(false);
+            }}
+          >
+            Povolit analytiku
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

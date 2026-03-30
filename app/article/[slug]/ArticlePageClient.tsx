@@ -9,24 +9,15 @@ import type { ArticleDetail } from "@/lib/actions/articles";
 
 function ratingLabel(rating: number): string {
   if (rating === 0) return "odpad!";
-  return "★".repeat(rating) + "☆".repeat(5 - rating);
+  return "\u2605".repeat(rating) + "\u2606".repeat(5 - rating);
 }
 
 function StarRating({ rating }: { rating: number }) {
   if (rating === 0) {
     return (
-      <span
-        className="star-row"
-        style={{
-          color: "var(--color-error)",
-          fontWeight: 600,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "6px",
-        }}
-      >
+      <span className="star-row" style={{ color: "var(--color-error)", fontWeight: 600 }}>
         <span>{ratingLabel(rating)}</span>
-        <ThumbsDown size={18} strokeWidth={2.5} />
+        <ThumbsDown size={16} strokeWidth={2.5} />
       </span>
     );
   }
@@ -34,12 +25,8 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <span className="star-row">
       {[1, 2, 3, 4, 5].map((star) => (
-        <span
-          key={star}
-          className={`star ${star <= rating ? "filled" : ""}`}
-          style={{ display: "inline-flex" }}
-        >
-          <Star size={18} fill={star <= rating ? "currentColor" : "none"} strokeWidth={2.5} />
+        <span key={star} className={`star ${star <= rating ? "filled" : ""}`}>
+          <Star size={16} fill={star <= rating ? "currentColor" : "none"} strokeWidth={2.5} />
         </span>
       ))}
     </span>
@@ -57,7 +44,7 @@ function InteractiveStarRating({
   const activeValue = hover ?? value;
 
   return (
-    <span className="star-row" style={{ cursor: "pointer", alignItems: "center" }}>
+    <span className="star-row" style={{ cursor: "pointer", gap: "4px" }}>
       {[0, 1, 2, 3, 4, 5].map((star) => {
         if (star === 0) {
           return (
@@ -68,17 +55,15 @@ function InteractiveStarRating({
                 cursor: "pointer",
                 transition: "all 0.15s ease",
                 color: activeValue === 0 ? "var(--color-error)" : "var(--color-text-muted)",
-                opacity: activeValue === 0 || hover === 0 ? 1 : 0.4,
-                marginRight: "8px",
-                filter: activeValue === 0 ? "none" : "grayscale(100%)",
-                display: "inline-flex",
+                opacity: activeValue === 0 || hover === 0 ? 1 : 0.35,
+                marginRight: "6px",
               }}
               onMouseEnter={() => setHover(star)}
               onMouseLeave={() => setHover(null)}
               onClick={() => onChange(star)}
               title="odpad!"
             >
-              <ThumbsDown size={22} strokeWidth={2.5} />
+              <ThumbsDown size={20} strokeWidth={2.5} />
             </span>
           );
         }
@@ -87,14 +72,14 @@ function InteractiveStarRating({
           <span
             key={star}
             className={`star ${star <= activeValue && activeValue !== 0 ? "filled" : ""}`}
-            style={{ cursor: "pointer", transition: "transform 0.15s ease", display: "inline-flex" }}
+            style={{ cursor: "pointer", transition: "transform 0.12s ease" }}
             onMouseEnter={() => setHover(star)}
             onMouseLeave={() => setHover(null)}
             onClick={() => onChange(star)}
             title={`${star}/5`}
           >
             <Star
-              size={22}
+              size={20}
               fill={star <= activeValue && activeValue !== 0 ? "currentColor" : "none"}
               strokeWidth={2.5}
             />
@@ -130,19 +115,19 @@ export default function ArticlePageClient({
       const response = await fetch(`/api/public/article/${article.slug}`);
 
       if (!response.ok) {
-        setError("Aktualizace článku se nepodařila načíst.");
+        setError("Aktualizace clanku se nepodarila nacist.");
         return;
       }
 
       const data = (await response.json()) as ArticleDetail;
       setArticle(data);
     } catch {
-      setError("Aktualizace článku se nepodařila načíst.");
+      setError("Aktualizace clanku se nepodarila nacist.");
     }
   };
 
   const handleDeleteArticle = async () => {
-    if (!window.confirm("Opravdu chcete smazat tento článek?")) return;
+    if (!window.confirm("Opravdu chcete smazat tento clanek?")) return;
 
     const response = await fetch(`/api/article/${article.slug}`, { method: "DELETE" });
 
@@ -153,7 +138,7 @@ export default function ArticlePageClient({
     }
 
     const data = await response.json();
-    window.alert(data.error || "Smazání selhalo");
+    window.alert(data.error || "Smazani selhalo");
   };
 
   const handleSubmitReview = async (event: React.FormEvent) => {
@@ -178,7 +163,7 @@ export default function ArticlePageClient({
     }
 
     const data = await response.json();
-    setReviewError(data.error || "Vytvoření recenze selhalo");
+    setReviewError(data.error || "Vytvoreni recenze selhalo");
   };
 
   const handleDeleteReview = async (reviewId: string) => {
@@ -196,7 +181,7 @@ export default function ArticlePageClient({
     }
 
     const data = await response.json();
-    window.alert(data.error || "Smazání recenze selhalo");
+    window.alert(data.error || "Smazani recenze selhalo");
   };
 
   const handleEditReview = async (event: React.FormEvent) => {
@@ -219,7 +204,7 @@ export default function ArticlePageClient({
     }
 
     const data = await response.json();
-    window.alert(data.error || "Úprava recenze selhala");
+    window.alert(data.error || "Uprava recenze selhala");
   };
 
   const isAuthor = session?.user?.id === article.authorId;
@@ -232,28 +217,21 @@ export default function ArticlePageClient({
       : null;
 
   return (
-    <main className="container" style={{ paddingTop: "40px", paddingBottom: "72px" }}>
-      <Link
-        href="/"
-        className="back-link"
-      >
-        ← Zpět na články
+    <main className="container" style={{ paddingTop: "32px", paddingBottom: "64px" }}>
+      <Link href="/" className="back-link">
+        ← Zpet na clanky
       </Link>
 
-      <div style={{ marginBottom: "32px" }}>
-        <h1 style={{ marginBottom: "16px", fontSize: "2.6rem", lineHeight: "1.2" }}>
-          {article.title}
-        </h1>
-        <div
-          className="meta"
-          style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}
-        >
+      {/* Article header */}
+      <div className="article-header">
+        <h1 className="article-title">{article.title}</h1>
+        <div className="article-meta meta">
           <span className="meta-accent">{article.author.name}</span>
-          <span style={{ color: "var(--color-border)" }}>·</span>
+          <span className="sep">·</span>
           <span>{new Date(article.publishDate).toLocaleDateString("cs-CZ")}</span>
           {avgRating && (
             <>
-              <span style={{ color: "var(--color-border)" }}>·</span>
+              <span className="sep">·</span>
               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <StarRating rating={Math.round(Number(avgRating))} />
                 <span style={{ color: "var(--color-text-secondary)" }}>{avgRating}</span>
@@ -263,7 +241,7 @@ export default function ArticlePageClient({
         </div>
 
         {article.categories.length > 0 && (
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "16px" }}>
+          <div className="article-categories">
             {article.categories.map((category) => (
               <span key={category.id} className="tag">
                 {category.name}
@@ -273,26 +251,21 @@ export default function ArticlePageClient({
         )}
       </div>
 
-      {error && (
-        <p className="error-text" style={{ marginBottom: "20px" }}>
-          {error}
-        </p>
-      )}
+      {error && <p className="error-text" style={{ marginBottom: "18px" }}>{error}</p>}
 
       {isAuthor && (
-        <div style={{ display: "flex", gap: "10px", marginBottom: "28px", flexWrap: "wrap" }}>
+        <div className="article-actions">
           <Link href={`/article/${article.slug}/edit`} className="btn btn-sm">
-            Upravit článek
+            Upravit clanek
           </Link>
           <button onClick={handleDeleteArticle} className="btn btn-sm btn-danger">
-            Smazat článek
+            Smazat clanek
           </button>
         </div>
       )}
 
-      <div
-        className="card"
-      >
+      {/* Article body */}
+      <div className="card">
         <div
           className="article-content"
           dangerouslySetInnerHTML={{ __html: article.content }}
@@ -301,33 +274,22 @@ export default function ArticlePageClient({
 
       <hr className="divider" />
 
-      <div>
-        <h2 style={{ marginBottom: "6px" }}>
+      {/* Reviews section */}
+      <div className="reviews-section">
+        <h2>
           Recenze
-          {avgRating && (
-            <span
-              style={{
-                fontSize: "1rem",
-                fontFamily: "var(--font-body)",
-                fontWeight: 400,
-                color: "var(--color-text-muted)",
-                marginLeft: "12px",
-              }}
-            >
-              (průměr: {avgRating}/5)
-            </span>
-          )}
+          {avgRating && <span className="reviews-avg">(prumer: {avgRating}/5)</span>}
         </h2>
-        <span className="accent-line" style={{ marginBottom: "28px" }} />
+        <span className="accent-line" />
       </div>
 
       {article.reviews.length === 0 && (
-        <p style={{ color: "var(--color-text-muted)", marginTop: "20px" }}>
-          Zatím žádné recenze.
+        <p style={{ color: "var(--color-text-muted)", marginTop: "18px", fontSize: "0.9rem" }}>
+          Zatim zadne recenze.
         </p>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "20px" }}>
+      <div className="reviews-list">
         {article.reviews.map((review) => {
           const isReviewAuthor = session?.user?.id === review.authorId;
 
@@ -335,16 +297,16 @@ export default function ArticlePageClient({
             return (
               <div
                 key={review.id}
-                className="card"
-                style={{ borderColor: "var(--color-accent)", borderWidth: "1px" }}
+                className="card review-card"
+                style={{ borderColor: "var(--color-accent)" }}
               >
                 <form onSubmit={handleEditReview}>
                   <div className="form-group">
-                    <label className="form-label">Hodnocení</label>
+                    <label className="form-label">Hodnoceni</label>
                     <InteractiveStarRating value={editRating} onChange={setEditRating} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Komentář</label>
+                    <label className="form-label">Komentar</label>
                     <textarea
                       className="textarea"
                       value={editComment}
@@ -352,16 +314,16 @@ export default function ArticlePageClient({
                       rows={3}
                     />
                   </div>
-                  <div style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
+                  <div className="review-actions" style={{ marginTop: "14px" }}>
                     <button type="submit" className="btn btn-accent btn-sm">
-                      Uložit
+                      Ulozit
                     </button>
                     <button
                       type="button"
                       className="btn btn-sm"
                       onClick={() => setEditingReviewId(null)}
                     >
-                      Zrušit
+                      Zrusit
                     </button>
                   </div>
                 </form>
@@ -370,34 +332,21 @@ export default function ArticlePageClient({
           }
 
           return (
-            <div key={review.id} className="card">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginBottom: "10px",
-                  gap: "16px",
-                  flexWrap: "wrap",
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
-                    <StarRating rating={review.rating} />
-                    <span className="meta">({review.rating}/5)</span>
-                  </div>
+            <div key={review.id} className="card review-card">
+              <div className="review-header">
+                <div className="review-rating-line">
+                  <StarRating rating={review.rating} />
+                  <span className="meta">({review.rating}/5)</span>
                 </div>
-                <div className="meta" style={{ textAlign: "right" }}>
+                <div className="review-author-block meta">
                   <span className="meta-accent">{review.author.name}</span>
                   <br />
                   {new Date(review.createdAt).toLocaleDateString("cs-CZ")}
                 </div>
               </div>
-              <p style={{ color: "var(--color-text-secondary)", lineHeight: "1.6" }}>
-                {review.comment}
-              </p>
+              <p className="review-comment">{review.comment}</p>
               {isReviewAuthor && (
-                <div style={{ display: "flex", gap: "8px", marginTop: "14px", flexWrap: "wrap" }}>
+                <div className="review-actions">
                   <button
                     className="btn btn-sm"
                     onClick={() => {
@@ -418,31 +367,30 @@ export default function ArticlePageClient({
         })}
       </div>
 
+      {/* Write review form */}
       {session?.user && (
-        <div className="card" style={{ marginTop: "32px" }}>
-          <h3 style={{ marginBottom: "20px" }}>Napsat recenzi</h3>
+        <div className="card review-form-card">
+          <h3>Napsat recenzi</h3>
           {reviewError && (
-            <p className="error-text" style={{ marginBottom: "16px" }}>
-              {reviewError}
-            </p>
+            <p className="error-text" style={{ marginBottom: "14px" }}>{reviewError}</p>
           )}
           <form onSubmit={handleSubmitReview}>
             <div className="form-group">
-              <label className="form-label">Hodnocení</label>
+              <label className="form-label">Hodnoceni</label>
               <InteractiveStarRating value={reviewRating} onChange={setReviewRating} />
             </div>
             <div className="form-group">
-              <label className="form-label">Váš komentář</label>
+              <label className="form-label">Vas komentar</label>
               <textarea
                 className="textarea"
-                placeholder="Napište svůj názor na článek..."
+                placeholder="Napiste svuj nazor na clanek..."
                 value={reviewComment}
                 onChange={(event) => setReviewComment(event.target.value)}
                 rows={3}
                 required
               />
             </div>
-            <button type="submit" className="btn btn-accent" style={{ marginTop: "20px" }}>
+            <button type="submit" className="btn btn-accent" style={{ marginTop: "18px" }}>
               Odeslat recenzi
             </button>
           </form>
@@ -450,9 +398,9 @@ export default function ArticlePageClient({
       )}
 
       {!session?.user && (
-        <div className="card" style={{ marginTop: "32px", textAlign: "center" }}>
-          <p style={{ color: "var(--color-text-muted)" }}>
-            <Link href="/login">Přihlaste se</Link> pro přidání recenze.
+        <div className="card review-login-prompt">
+          <p style={{ color: "var(--color-text-muted)", margin: 0 }}>
+            <Link href="/login">Prihlaste se</Link> pro pridani recenze.
           </p>
         </div>
       )}

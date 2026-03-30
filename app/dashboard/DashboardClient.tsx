@@ -3,16 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  Alert,
-  Badge,
-  Button,
-  ButtonGroup,
-  Card,
-  Pagination,
-  Spinner,
-  Stack,
-} from "react-bootstrap";
 
 type DashboardArticle = {
   id: string;
@@ -40,23 +30,12 @@ type DashboardArticlePage = {
 
 function getArticleState(article: DashboardArticle) {
   if (article.status === "DRAFT") {
-    return {
-      label: "Draft",
-      variant: "secondary" as const,
-    };
+    return { label: "Draft", className: "badge-draft" };
   }
-
   if (new Date(article.publishDate) > new Date()) {
-    return {
-      label: "Naplánováno",
-      variant: "warning" as const,
-    };
+    return { label: "Naplanovano", className: "badge-scheduled" };
   }
-
-  return {
-    label: "Publikováno",
-    variant: "success" as const,
-  };
+  return { label: "Publikovano", className: "badge-published" };
 }
 
 type DashboardClientProps = {
@@ -87,13 +66,13 @@ export default function DashboardClient({ initialPage }: DashboardClientProps) {
         const data = await response.json();
 
         if (!response.ok) {
-          setError(data.error || "Načtení dashboardu selhalo.");
+          setError(data.error || "Nacteni dashboardu selhalo.");
           return;
         }
 
         setPageData(data as DashboardArticlePage);
       } catch {
-        setError("Načtení dashboardu selhalo.");
+        setError("Nacteni dashboardu selhalo.");
       } finally {
         setLoading(false);
       }
@@ -120,14 +99,14 @@ export default function DashboardClient({ initialPage }: DashboardClientProps) {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || "Načtení dashboardu selhalo.");
+      throw new Error(data.error || "Nacteni dashboardu selhalo.");
     }
 
     setPageData(data as DashboardArticlePage);
   };
 
   const handleDelete = async (slug: string) => {
-    if (!window.confirm("Opravdu chcete tento článek smazat?")) {
+    if (!window.confirm("Opravdu chcete tento clanek smazat?")) {
       return;
     }
 
@@ -139,14 +118,14 @@ export default function DashboardClient({ initialPage }: DashboardClientProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Smazání článku selhalo.");
+        setError(data.error || "Smazani clanku selhalo.");
         return;
       }
 
       await reloadCurrentPage();
       router.refresh();
     } catch {
-      setError("Smazání článku selhalo.");
+      setError("Smazani clanku selhalo.");
     } finally {
       setBusySlug(null);
     }
@@ -167,181 +146,162 @@ export default function DashboardClient({ initialPage }: DashboardClientProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Změna stavu článku selhala.");
+        setError(data.error || "Zmena stavu clanku selhala.");
         return;
       }
 
       await reloadCurrentPage();
       router.refresh();
     } catch {
-      setError("Změna stavu článku selhala.");
+      setError("Zmena stavu clanku selhala.");
     } finally {
       setBusySlug(null);
     }
   };
 
   return (
-    <main className="container container-wide" style={{ paddingTop: "40px", paddingBottom: "72px" }}>
-      <Card
-        bg="dark"
-        text="light"
-        className="shadow-sm border-secondary mb-4"
-        style={{ backgroundColor: "var(--color-bg-elevated)" }}
-      >
-        <Card.Body className="p-4 p-lg-5">
-          <Stack direction="horizontal" className="justify-content-between flex-wrap gap-3">
-            <div>
-              <h1 style={{ marginBottom: "12px" }}>Můj dashboard</h1>
-              <p className="mb-0">
-                Spravujte vlastní obsah přes klientský dashboard napojený na Route Handlers.
-              </p>
-            </div>
-            <Stack direction="horizontal" gap={2}>
-              <Link href="/article/new" className="btn btn-accent">
-                Nový článek
-              </Link>
-              <Link href="/" className="btn">
-                Veřejný web
-              </Link>
-            </Stack>
-          </Stack>
-        </Card.Body>
-      </Card>
-
-      {error ? <Alert variant="danger">{error}</Alert> : null}
-
-      {loading ? (
-        <div className="d-flex align-items-center gap-2 text-secondary">
-          <Spinner animation="border" size="sm" />
-          <span>Načítání obsahu…</span>
+    <main className="container container-wide" style={{ paddingTop: "32px", paddingBottom: "64px" }}>
+      <div className="card dashboard-hero">
+        <div className="dashboard-hero-inner">
+          <div>
+            <h1>Můj dashboard</h1>
+            <p style={{ marginBottom: 0 }}>
+              Spravujte vlastní obsah, publikujte články a sledujte recenze.
+            </p>
+          </div>
+          <div className="dashboard-hero-actions">
+            <Link href="/article/new" className="btn btn-accent">
+              Nový článek
+            </Link>
+            <Link href="/" className="btn">
+              Veřejný web
+            </Link>
+          </div>
         </div>
-      ) : null}
+      </div>
+
+      {error && <p className="error-text" style={{ marginBottom: "16px" }}>{error}</p>}
+
+      {loading && (
+        <div className="dashboard-loading">
+          <span className="spinner" />
+          <span>Načítání obsahu...</span>
+        </div>
+      )}
 
       {!loading && pageData && (
         <>
-          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+          <div className="section-header">
             <div>
-              <h2 style={{ marginBottom: "8px" }}>Moje články</h2>
+              <h2>Moje články</h2>
               <span className="accent-line" />
             </div>
-            <p className="meta mb-0">
+            <p className="meta">
               {pageData.totalCount} článků, strana {pageData.currentPage} z {pageData.totalPages}
             </p>
           </div>
 
           {pageData.articles.length === 0 ? (
-            <Card
-              bg="dark"
-              text="light"
-              className="border-secondary"
-              style={{ backgroundColor: "var(--color-bg-elevated)" }}
-            >
-              <Card.Body className="p-4">
-                <h3 style={{ marginBottom: "10px" }}>Zatím nemáte žádné články</h3>
-                <p className="mb-3">Začněte novým draftem a publikujte až ve chvíli, kdy budete hotovi.</p>
-                <Link href="/article/new" className="btn btn-accent">
-                  Vytvořit článek
-                </Link>
-              </Card.Body>
-            </Card>
+            <div className="card dashboard-empty">
+              <h3>Zatím nemáte žádné články</h3>
+              <p>Začněte novým draftem a publikujte až ve chvíli, kdy budete hotovi.</p>
+              <Link href="/article/new" className="btn btn-accent">
+                Vytvořit článek
+              </Link>
+            </div>
           ) : (
-            <Stack gap={3}>
+            <div className="articles-list">
               {pageData.articles.map((article) => {
                 const state = getArticleState(article);
                 const isBusy = busySlug === article.slug;
 
                 return (
-                  <Card
-                    key={article.id}
-                    bg="dark"
-                    text="light"
-                    className="border-secondary"
-                    style={{ backgroundColor: "var(--color-bg-elevated)" }}
-                  >
-                    <Card.Body className="p-4">
-                      <div className="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                        <div style={{ flex: "1 1 520px" }}>
-                          <Stack direction="horizontal" gap={2} className="flex-wrap mb-3">
-                            <Badge bg={state.variant}>{state.label}</Badge>
-                            <Badge bg="warning" text="dark">
-                              {article._count.reviews} recenzí
-                            </Badge>
-                            {article.categories.map((category) => (
-                              <Badge key={category.id} bg="secondary">
-                                {category.name}
-                              </Badge>
-                            ))}
-                          </Stack>
-
-                          <h3 style={{ marginBottom: "10px" }}>{article.title}</h3>
-                          <p className="meta mb-3">
-                            URL: /article/{article.slug}
-                            <br />
-                            Publikace: {new Date(article.publishDate).toLocaleDateString("cs-CZ")}
-                            {" · "}
-                            Poslední úprava: {new Date(article.updatedAt).toLocaleDateString("cs-CZ")}
-                          </p>
-                          <p className="mb-0">
-                            {article.content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 220)}
-                            ...
-                          </p>
+                  <div key={article.id} className="card">
+                    <div className="dashboard-article-card">
+                      <div className="dashboard-article-info">
+                        <div className="dashboard-badges">
+                          <span className={`badge ${state.className}`}>{state.label}</span>
+                          <span className="badge badge-count">
+                            {article._count.reviews} recenzi
+                          </span>
+                          {article.categories.map((category) => (
+                            <span key={category.id} className="tag">
+                              {category.name}
+                            </span>
+                          ))}
                         </div>
 
-                        <div className="d-flex flex-column align-items-stretch gap-2">
-                          <ButtonGroup vertical>
-                            <Link href={`/article/${article.slug}`} className="btn btn-outline-light">
-                              Detail
-                            </Link>
-                            <Link href={`/article/${article.slug}/edit`} className="btn btn-outline-light">
-                              Upravit
-                            </Link>
-                            <Button
-                              variant={article.status === "PUBLISHED" ? "outline-secondary" : "warning"}
-                              onClick={() => void handleToggleStatus(article)}
-                              disabled={isBusy}
-                            >
-                              {article.status === "PUBLISHED" ? "Přepnout na draft" : "Publikovat"}
-                            </Button>
-                            <Button
-                              variant="outline-danger"
-                              onClick={() => void handleDelete(article.slug)}
-                              disabled={isBusy}
-                            >
-                              {isBusy ? "Probíhá…" : "Smazat"}
-                            </Button>
-                          </ButtonGroup>
-                        </div>
+                        <h3 className="dashboard-article-title">{article.title}</h3>
+                        <p className="meta dashboard-article-meta">
+                          /article/{article.slug}
+                          {" · "}
+                          Publikace: {new Date(article.publishDate).toLocaleDateString("cs-CZ")}
+                          {" · "}
+                          Upraveno: {new Date(article.updatedAt).toLocaleDateString("cs-CZ")}
+                        </p>
+                        <p className="dashboard-article-excerpt">
+                          {article.content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200)}...
+                        </p>
                       </div>
-                    </Card.Body>
-                  </Card>
+
+                      <div className="dashboard-article-actions">
+                        <Link href={`/article/${article.slug}`} className="btn btn-sm">
+                          Detail
+                        </Link>
+                        <Link href={`/article/${article.slug}/edit`} className="btn btn-sm">
+                          Upravit
+                        </Link>
+                        <button
+                          className="btn btn-sm btn-accent"
+                          onClick={() => void handleToggleStatus(article)}
+                          disabled={isBusy}
+                        >
+                          {article.status === "PUBLISHED" ? "Prepnout na draft" : "Publikovat"}
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => void handleDelete(article.slug)}
+                          disabled={isBusy}
+                        >
+                          {isBusy ? "Probiha..." : "Smazat"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
-            </Stack>
+            </div>
           )}
 
-          {pageData.totalPages > 1 ? (
-            <Pagination className="mt-4 justify-content-center flex-wrap">
-              <Pagination.Prev
+          {pageData.totalPages > 1 && (
+            <nav className="pagination-nav" aria-label="Strankovani">
+              <button
+                className="btn btn-sm"
                 disabled={pageData.currentPage <= 1}
                 onClick={() => replacePage(pageData.currentPage - 1)}
-              />
+              >
+                Predchozi
+              </button>
               {Array.from({ length: pageData.totalPages }, (_, index) => index + 1).map(
                 (pageNumber) => (
-                  <Pagination.Item
-                    active={pageNumber === pageData.currentPage}
+                  <button
                     key={pageNumber}
+                    className={pageNumber === pageData.currentPage ? "btn btn-sm btn-accent" : "btn btn-sm"}
                     onClick={() => replacePage(pageNumber)}
                   >
                     {pageNumber}
-                  </Pagination.Item>
+                  </button>
                 ),
               )}
-              <Pagination.Next
+              <button
+                className="btn btn-sm"
                 disabled={pageData.currentPage >= pageData.totalPages}
                 onClick={() => replacePage(pageData.currentPage + 1)}
-              />
-            </Pagination>
-          ) : null}
+              >
+                Dalsi
+              </button>
+            </nav>
+          )}
         </>
       )}
     </main>

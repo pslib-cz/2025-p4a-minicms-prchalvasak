@@ -76,67 +76,44 @@ export default async function Home({ searchParams }: HomePageProps) {
   return (
     <div className="page-wrapper">
       <Header />
-      <main
-        className="container container-wide"
-        style={{ paddingTop: "40px", paddingBottom: "72px" }}
-      >
-        <section
-          className="card hero-grid"
-          style={{
-            gap: "28px",
-            marginBottom: "28px",
-            alignItems: "center",
-          }}
-        >
+      <main className="container container-wide home-content">
+        {/* Hero */}
+        <section className="card hero-section">
           <div>
-            <h1 style={{ marginBottom: "14px", maxWidth: "16ch" }}>
-              {APP_NAME} pro autorské texty a redakční výběr.
+            <h1 className="hero-title">
+              {APP_NAME} pro autorske texty a redakcni vyber.
             </h1>
-            <p style={{ maxWidth: "58ch", marginBottom: "24px" }}>
-              {APP_TAGLINE} Procházejte vydané články, filtrujte témata
-              a sledujte reakce čtenářů pod každým textem.
+            <p className="hero-desc">
+              {APP_TAGLINE} Prochazejte vydane clanky, filtrujte temata
+              a sledujte reakce ctenaru pod kazdym textem.
             </p>
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <div className="hero-actions">
               <a href="#article-filters" className="btn btn-accent">
-                Procházet články
+                Prochazet clanky
               </a>
               <Link href="/dashboard" className="btn">
-                Můj dashboard
+                Muj dashboard
               </Link>
             </div>
           </div>
 
-          <div
-            style={{
-              position: "relative",
-              minHeight: "220px",
-              borderRadius: "14px",
-              overflow: "hidden",
-              border: "1px solid var(--color-border-light)",
-              background:
-                "radial-gradient(circle at top, rgba(232, 168, 73, 0.26), transparent 45%), var(--color-bg-input)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <div className="hero-visual">
             <Image
               src="/editorial-hero.svg"
-              alt="Ilustrace redakčního dashboardu"
+              alt="Ilustrace redakcniho dashboardu"
               fill
               sizes="(max-width: 1100px) 100vw, 420px"
-              style={{ objectFit: "cover", opacity: 0.82 }}
+              style={{ objectFit: "cover", opacity: 0.8 }}
               priority
             />
           </div>
         </section>
 
-        <section id="article-filters" className="card" style={{ marginBottom: "28px" }}>
-          <div style={{ marginBottom: "18px" }}>
-            <h2 style={{ marginBottom: "8px" }}>Hledat články</h2>
-          </div>
+        {/* Filters */}
+        <section id="article-filters" className="card filters-section">
+          <h2 style={{ marginBottom: '14px' }}>Hledat clanky</h2>
 
-          <form method="get" className="filters-grid" style={{ gap: "14px", alignItems: "end" }}>
+          <form method="get" className="filters-grid">
             <div className="form-group">
               <label className="form-label" htmlFor="q">
                 Vyhledat
@@ -145,7 +122,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                 id="q"
                 name="q"
                 className="input"
-                placeholder="Hledat podle názvu nebo obsahu..."
+                placeholder="Hledat podle nazvu nebo obsahu..."
                 defaultValue={query}
               />
             </div>
@@ -160,7 +137,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                 className="select-input"
                 defaultValue={selectedCategory}
               >
-                <option value="">Všechny kategorie</option>
+                <option value="">Vsechny kategorie</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.name}>
                     {category.name}
@@ -169,7 +146,7 @@ export default async function Home({ searchParams }: HomePageProps) {
               </select>
             </div>
 
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <div className="filters-actions">
               <button type="submit" className="btn btn-accent">
                 Filtrovat
               </button>
@@ -182,38 +159,31 @@ export default async function Home({ searchParams }: HomePageProps) {
           </form>
         </section>
 
-        <section style={{ marginBottom: "18px" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              gap: "16px",
-              flexWrap: "wrap",
-            }}
-          >
-            <div>
-              <h2 style={{ marginBottom: "8px" }}>Publikované články</h2>
-              <span className="accent-line" />
-            </div>
-            <p className="meta">
-              {articlePage.totalCount} výsledků, strana {articlePage.currentPage} z{" "}
-              {articlePage.totalPages}
-            </p>
+        {/* Section header */}
+        <div className="section-header">
+          <div>
+            <h2>Publikovane clanky</h2>
+            <span className="accent-line" />
           </div>
-        </section>
+          <p className="meta">
+            {articlePage.totalCount} vysledku, strana {articlePage.currentPage} z{" "}
+            {articlePage.totalPages}
+          </p>
+        </div>
 
+        {/* Empty state */}
         {articlePage.articles.length === 0 && (
           <div className="card">
-            <h3 style={{ marginBottom: "10px" }}>Nic nenalezeno</h3>
+            <h3 style={{ marginBottom: "8px" }}>Nic nenalezeno</h3>
             <p>
-              Zkuste upravit hledaný výraz nebo vyčistit aktivní filtr
+              Zkuste upravit hledany vyraz nebo vycistit aktivni filtr
               kategorie.
             </p>
           </div>
         )}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {/* Article list */}
+        <div className="articles-list">
           {articlePage.articles.map((article) => (
             <Link
               key={article.id}
@@ -221,39 +191,28 @@ export default async function Home({ searchParams }: HomePageProps) {
               className="card card-interactive"
               style={{ textDecoration: "none", display: "block" }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: "16px",
-                  alignItems: "flex-start",
-                  marginBottom: "12px",
-                  flexWrap: "wrap",
-                }}
-              >
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "12px",
+                alignItems: "flex-start",
+                flexWrap: "wrap",
+              }}>
                 <div>
-                  <h3 style={{ marginBottom: "8px", fontSize: "1.35rem" }}>
+                  <h3 style={{ marginBottom: "8px", fontSize: "1.2rem" }}>
                     {article.title}
                   </h3>
-                  <div
-                    className="meta"
-                    style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
-                  >
+                  <div className="article-card-meta meta">
                     <span className="meta-accent">{article.author.name}</span>
+                    <span className="sep">·</span>
                     <span>{new Date(article.publishDate).toLocaleDateString("cs-CZ")}</span>
-                    <span>{article._count.reviews} recenzí</span>
+                    <span className="sep">·</span>
+                    <span>{article._count.reviews} recenzi</span>
                   </div>
                 </div>
 
                 {article.categories.length > 0 && (
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      flexWrap: "wrap",
-                      justifyContent: "flex-end",
-                    }}
-                  >
+                  <div className="article-card-tags">
                     {article.categories.map((category) => (
                       <span key={category.id} className="tag">
                         {category.name}
@@ -263,30 +222,16 @@ export default async function Home({ searchParams }: HomePageProps) {
                 )}
               </div>
 
-              <p
-                style={{
-                  fontSize: "0.97rem",
-                  lineHeight: "1.75",
-                  color: "var(--color-text-secondary)",
-                }}
-              >
+              <p className="article-card-excerpt">
                 {getArticleExcerpt(article.content, 210)}
               </p>
             </Link>
           ))}
         </div>
 
+        {/* Pagination */}
         {articlePage.totalPages > 1 && (
-          <nav
-            aria-label="Stránkování článků"
-            style={{
-              display: "flex",
-              gap: "10px",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              marginTop: "28px",
-            }}
-          >
+          <nav aria-label="Strankovani clanku" className="pagination-nav">
             {articlePage.currentPage > 1 ? (
               <Link
                 href={buildPageHref({
@@ -294,12 +239,12 @@ export default async function Home({ searchParams }: HomePageProps) {
                   query,
                   category: selectedCategory,
                 })}
-                className="btn"
+                className="btn btn-sm"
               >
-                Předchozí
+                Predchozi
               </Link>
             ) : (
-              <span className="btn btn-disabled">Předchozí</span>
+              <span className="btn btn-sm btn-disabled">Predchozi</span>
             )}
 
             {Array.from({ length: articlePage.totalPages }, (_, index) => index + 1).map(
@@ -311,7 +256,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                     query,
                     category: selectedCategory,
                   })}
-                  className={pageNumber === articlePage.currentPage ? "btn btn-accent" : "btn"}
+                  className={pageNumber === articlePage.currentPage ? "btn btn-sm btn-accent" : "btn btn-sm"}
                 >
                   {pageNumber}
                 </Link>
@@ -325,12 +270,12 @@ export default async function Home({ searchParams }: HomePageProps) {
                   query,
                   category: selectedCategory,
                 })}
-                className="btn"
+                className="btn btn-sm"
               >
-                Další
+                Dalsi
               </Link>
             ) : (
-              <span className="btn btn-disabled">Další</span>
+              <span className="btn btn-sm btn-disabled">Dalsi</span>
             )}
           </nav>
         )}

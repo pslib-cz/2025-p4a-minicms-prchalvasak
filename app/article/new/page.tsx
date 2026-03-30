@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Alert, Spinner } from "react-bootstrap";
 import Header from "@/app/components/Header";
 import ArticleEditorForm, {
   type ArticleFormPayload,
@@ -34,7 +33,7 @@ export default function NewArticlePage() {
 
     const data = await response.json();
     if (!response.ok) {
-      return { error: data.error || "Vytvoření článku selhalo." };
+      return { error: data.error || "Vytvoreni clanku selhalo." };
     }
 
     return { article: data as { slug: string } };
@@ -44,37 +43,37 @@ export default function NewArticlePage() {
     <div className="page-wrapper">
       <Header />
 
-      {status === "loading" ? (
-        <div className="container" style={{ paddingTop: "40px" }}>
-          <div className="d-flex align-items-center gap-2 text-secondary">
-            <Spinner animation="border" size="sm" />
-            <span>Načítání…</span>
+      {status === "loading" && (
+        <div className="container" style={{ paddingTop: "32px" }}>
+          <div className="dashboard-loading">
+            <span className="spinner" />
+            <span>Nacitani...</span>
           </div>
         </div>
-      ) : null}
+      )}
 
-      {status === "authenticated" && session?.user ? (
+      {status === "authenticated" && session?.user && (
         <ArticleEditorForm
           backHref="/dashboard"
-          backLabel="← Zpět do dashboardu"
-          heading="Nový článek"
-          helperText="Vytvořte draft nebo připravte článek k naplánované publikaci."
+          backLabel="Zpet do dashboardu"
+          heading="Novy clanek"
+          helperText="Vytvorte draft nebo pripravte clanek k naplanovane publikaci."
           initialValues={initialValues}
-          submitLabel="Uložit článek"
+          submitLabel="Ulozit clanek"
           submitArticle={submitArticle}
         />
-      ) : null}
+      )}
 
-      {status === "unauthenticated" ? (
-        <div className="container" style={{ paddingTop: "40px", maxWidth: "760px" }}>
-          <Alert variant="warning">
-            Musíte být přihlášeni, abyste mohli vytvořit nový článek.
-          </Alert>
+      {status === "unauthenticated" && (
+        <div className="container" style={{ paddingTop: "32px", maxWidth: "760px" }}>
+          <p className="error-text" style={{ marginBottom: "16px" }}>
+            Musite byt prihlaseni, abyste mohli vytvorit novy clanek.
+          </p>
           <Link href="/login" className="btn btn-accent">
-            Přihlásit se
+            Prihlasit se
           </Link>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

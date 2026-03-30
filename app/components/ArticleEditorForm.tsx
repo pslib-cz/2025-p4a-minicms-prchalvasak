@@ -5,18 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Editor from "react-simple-wysiwyg";
 import {
-  Alert,
-  Badge,
-  Button,
-  Card,
-  Col,
-  Form,
-  Modal,
-  Row,
-  Spinner,
-  Stack,
-} from "react-bootstrap";
-import {
   ARTICLE_STATUSES,
   stripHtmlTags,
   validateArticleInput,
@@ -94,14 +82,14 @@ export default function ArticleEditorForm({
       try {
         const response = await fetch("/api/category");
         if (!response.ok) {
-          setError("Načtení kategorií selhalo.");
+          setError("Nacteni kategorii selhalo.");
           return;
         }
 
         const data = (await response.json()) as CategoryOption[];
         setCategories(data);
       } catch {
-        setError("Načtení kategorií selhalo.");
+        setError("Nacteni kategorii selhalo.");
       } finally {
         setLoadingCategories(false);
       }
@@ -175,7 +163,7 @@ export default function ArticleEditorForm({
       const data = await response.json();
 
       if (!response.ok) {
-        setCategoryError(data.error || "Vytvoření kategorie selhalo.");
+        setCategoryError(data.error || "Vytvoreni kategorie selhalo.");
         return;
       }
 
@@ -189,195 +177,192 @@ export default function ArticleEditorForm({
       setNewCategoryName("");
       setShowCategoryModal(false);
     } catch {
-      setCategoryError("Vytvoření kategorie selhalo.");
+      setCategoryError("Vytvoreni kategorie selhalo.");
     } finally {
       setCreatingCategory(false);
     }
   };
 
   return (
-    <main
-      className="container"
-      style={{ paddingTop: "40px", paddingBottom: "72px", maxWidth: "920px" }}
-    >
+    <main className="container editor-page">
       <Link href={backHref} className="back-link">
-        {backLabel}
+        ← {backLabel}
       </Link>
 
-      <Card
-        bg="dark"
-        text="light"
-        className="shadow-sm border-secondary"
-        style={{ backgroundColor: "var(--color-bg-elevated)" }}
-      >
-        <Card.Body className="p-4 p-lg-5">
-          <Stack direction="horizontal" className="justify-content-between mb-4">
-            <div>
-              <h1 style={{ marginBottom: "8px" }}>{heading}</h1>
-              <p className="mb-0">{helperText}</p>
+      <div className="card">
+        <div className="editor-heading">
+          <div>
+            <h1>{heading}</h1>
+            <p style={{ marginBottom: 0 }}>{helperText}</p>
+          </div>
+          <span className={`badge ${status === "PUBLISHED" ? "badge-published" : "badge-draft"}`}>
+            {status === "PUBLISHED" ? "Publikace zapnuta" : "Draft"}
+          </span>
+        </div>
+
+        {error && <p className="error-text" style={{ marginBottom: "18px" }}>{error}</p>}
+
+        <form onSubmit={handleSubmit}>
+          {/* Title + Status + Date row */}
+          <div className="editor-fields-row">
+            <div className="form-group editor-field-title">
+              <label className="form-label" htmlFor="article-title">Nazev</label>
+              <input
+                id="article-title"
+                className="input"
+                type="text"
+                value={title}
+                placeholder="Zadejte titulek clanku"
+                onChange={(event) => setTitle(event.target.value)}
+              />
             </div>
-            <Badge
-              bg={status === "PUBLISHED" ? "warning" : "secondary"}
-              text={status === "PUBLISHED" ? "dark" : "light"}
+            <div className="form-group editor-field-status">
+              <label className="form-label" htmlFor="article-status">Stav</label>
+              <select
+                id="article-status"
+                className="select-input"
+                value={status}
+                onChange={(event) =>
+                  setStatus(event.target.value as (typeof ARTICLE_STATUSES)[number])
+                }
+              >
+                <option value="DRAFT">Draft</option>
+                <option value="PUBLISHED">Published</option>
+              </select>
+            </div>
+            <div className="form-group editor-field-date">
+              <label className="form-label" htmlFor="article-date">Publikovat</label>
+              <input
+                id="article-date"
+                className="input"
+                type="date"
+                value={publishDate}
+                onChange={(event) => setPublishDate(event.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* WYSIWYG Editor */}
+          <div className="editor-content-section">
+            <div className="editor-content-label">Obsah clanku</div>
+            <div className="editor-shell">
+              <Editor
+                value={content}
+                onChange={(event) =>
+                  setContent((event.target as HTMLTextAreaElement).value)
+                }
+                containerProps={{
+                  style: {
+                    minHeight: "320px",
+                  },
+                }}
+              />
+            </div>
+            <div className="editor-content-footer">
+              <span>Pouzijte zakladni formatovani, seznamy a odkazy.</span>
+              <span>{plainTextLength} znaku cisteho textu</span>
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div className="editor-categories-header">
+            <span className="form-label" style={{ margin: 0 }}>Kategorie</span>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => setShowCategoryModal(true)}
             >
-              {status === "PUBLISHED" ? "Publikace zapnuta" : "Uložit jako draft"}
-            </Badge>
-          </Stack>
+              + Pridat kategorii
+            </button>
+          </div>
 
-          {error ? <Alert variant="danger">{error}</Alert> : null}
+          {loadingCategories ? (
+            <div className="dashboard-loading">
+              <span className="spinner" />
+              <span>Nacitani kategorii...</span>
+            </div>
+          ) : (
+            <div className="checkbox-grid">
+              {categories.map((category) => {
+                const checked = selectedCategoryIds.includes(category.id);
 
-          <Form onSubmit={handleSubmit}>
-            <Row className="g-4">
-              <Col xs={12} lg={8}>
-                <Form.Group controlId="article-title">
-                  <Form.Label>Název</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={title}
-                    placeholder="Zadejte titulek článku"
-                    onChange={(event) => setTitle(event.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={12} md={6} lg={2}>
-                <Form.Group controlId="article-status">
-                  <Form.Label>Stav</Form.Label>
-                  <Form.Select
-                    value={status}
-                    onChange={(event) =>
-                      setStatus(event.target.value as (typeof ARTICLE_STATUSES)[number])
-                    }
+                return (
+                  <label
+                    key={category.id}
+                    className={`choice-tile ${checked ? "choice-tile-active" : ""}`}
                   >
-                    <option value="DRAFT">Draft</option>
-                    <option value="PUBLISHED">Published</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col xs={12} md={6} lg={2}>
-                <Form.Group controlId="article-publish-date">
-                  <Form.Label>Publikovat</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={publishDate}
-                    onChange={(event) => setPublishDate(event.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <div className="mt-4">
-              <Form.Label>Obsah článku</Form.Label>
-              <div className="editor-shell">
-                <Editor
-                  value={content}
-                  onChange={(event) =>
-                    setContent((event.target as HTMLTextAreaElement).value)
-                  }
-                  containerProps={{
-                    style: {
-                      minHeight: "320px",
-                    },
-                  }}
-                />
-              </div>
-              <div className="d-flex justify-content-between mt-2">
-                <small className="text-secondary">
-                  Použijte základní formátování, seznamy a odkazy.
-                </small>
-                <small className="text-secondary">
-                  {plainTextLength} znaků čistého textu
-                </small>
-              </div>
+                    <input
+                      className="choice-checkbox"
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleCategory(category.id)}
+                    />
+                    <span>{category.name}</span>
+                  </label>
+                );
+              })}
             </div>
+          )}
 
-            <div className="mt-4">
-              <Stack direction="horizontal" className="justify-content-between mb-3">
-                <Form.Label className="mb-0">Kategorie</Form.Label>
-                <Button
-                  type="button"
-                  variant="outline-warning"
-                  size="sm"
-                  onClick={() => setShowCategoryModal(true)}
-                >
-                  Přidat kategorii
-                </Button>
-              </Stack>
-
-              {loadingCategories ? (
-                <div className="d-flex align-items-center gap-2 text-secondary">
-                  <Spinner animation="border" size="sm" />
-                  <span>Načítání kategorií…</span>
-                </div>
+          {/* Footer */}
+          <div className="editor-footer">
+            <span className="editor-footer-hint">
+              Published + budouci datum = naplanovany clanek.
+            </span>
+            <button type="submit" className="btn btn-accent" disabled={submitting}>
+              {submitting ? (
+                <><span className="spinner" /> Ukladani...</>
               ) : (
-                <Row className="g-2">
-                  {categories.map((category) => {
-                    const checked = selectedCategoryIds.includes(category.id);
-
-                    return (
-                      <Col xs={12} md={6} xl={4} key={category.id}>
-                        <label
-                          className={`choice-tile ${checked ? "choice-tile-active" : ""}`}
-                        >
-                          <input
-                            className="choice-checkbox"
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => toggleCategory(category.id)}
-                          />
-                          <span>{category.name}</span>
-                        </label>
-                      </Col>
-                    );
-                  })}
-                </Row>
+                submitLabel
               )}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Category creation modal */}
+      {showCategoryModal && (
+        <div className="modal-overlay" onClick={() => setShowCategoryModal(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h3>Nova kategorie</h3>
+
+            {categoryError && (
+              <p className="error-text" style={{ marginBottom: "14px" }}>{categoryError}</p>
+            )}
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="new-category-name">Nazev</label>
+              <input
+                id="new-category-name"
+                className="input"
+                type="text"
+                value={newCategoryName}
+                onChange={(event) => setNewCategoryName(event.target.value)}
+                placeholder="Napr. Rozhovory"
+                autoFocus
+              />
             </div>
 
-            <Stack
-              direction="horizontal"
-              className="justify-content-between mt-4 flex-wrap"
-              gap={2}
-            >
-              <small className="text-secondary">
-                Published + budoucí datum = naplánovaný článek.
-              </small>
-              <Button type="submit" variant="warning" disabled={submitting}>
-                {submitting ? "Ukládání…" : submitLabel}
-              </Button>
-            </Stack>
-          </Form>
-        </Card.Body>
-      </Card>
-
-      <Modal
-        show={showCategoryModal}
-        onHide={() => setShowCategoryModal(false)}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Nová kategorie</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {categoryError ? <Alert variant="danger">{categoryError}</Alert> : null}
-          <Form.Group controlId="new-category-name">
-            <Form.Label>Název</Form.Label>
-            <Form.Control
-              type="text"
-              value={newCategoryName}
-              onChange={(event) => setNewCategoryName(event.target.value)}
-              placeholder="Např. Rozhovory"
-            />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={() => setShowCategoryModal(false)}>
-            Zrušit
-          </Button>
-          <Button variant="warning" onClick={handleCreateCategory} disabled={creatingCategory}>
-            {creatingCategory ? "Vytváření…" : "Vytvořit"}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn"
+                onClick={() => setShowCategoryModal(false)}
+              >
+                Zrusit
+              </button>
+              <button
+                type="button"
+                className="btn btn-accent"
+                onClick={handleCreateCategory}
+                disabled={creatingCategory}
+              >
+                {creatingCategory ? "Vytvareni..." : "Vytvorit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

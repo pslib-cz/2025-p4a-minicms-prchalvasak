@@ -37,7 +37,7 @@ export default function LoginPage() {
             });
 
             if (result?.error) {
-                setError("Neplatný email nebo heslo");
+                setError("Neplatny email nebo heslo");
                 setLoading(false);
             } else {
                 await getSession();
@@ -45,7 +45,7 @@ export default function LoginPage() {
                 router.refresh();
             }
         } catch {
-            setError("Přihlášení selhalo");
+            setError("Prihlaseni selhalo");
             setLoading(false);
         }
     };
@@ -53,45 +53,53 @@ export default function LoginPage() {
     return (
         <div className="auth-wrapper">
             <div className="card auth-card">
-                <h1>Přihlášení</h1>
-                <p className="auth-subtitle">Vítejte zpět v {APP_NAME}</p>
+                <h1>Prihlaseni</h1>
+                <p className="auth-subtitle">Vitejte zpet v {APP_NAME}</p>
 
-                {error && <p className="error-text" style={{ marginBottom: "20px" }}>{error}</p>}
+                {error && <p className="error-text" style={{ marginBottom: "18px" }}>{error}</p>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Email</label>
+                        <label className="form-label" htmlFor="login-email">Email</label>
                         <input
+                            id="login-email"
                             className="input"
                             type="email"
                             placeholder="vas@email.cz"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            autoComplete="email"
                             required
                         />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Heslo</label>
+                        <label className="form-label" htmlFor="login-password">Heslo</label>
                         <input
+                            id="login-password"
                             className="input"
                             type="password"
-                            placeholder="••••••••"
+                            placeholder="········"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            autoComplete="current-password"
                             required
                         />
                     </div>
                     <button
                         type="submit"
                         className="btn btn-accent"
-                        style={{ width: "100%", marginTop: "24px" }}
+                        style={{ width: "100%", marginTop: "22px" }}
                         disabled={loading}
                     >
-                        {loading ? "Přihlašování..." : "Přihlásit se"}
+                        {loading ? (
+                            <><span className="spinner" /> Prihlasovani...</>
+                        ) : (
+                            "Prihlasit se"
+                        )}
                     </button>
                 </form>
                 <p className="auth-footer">
-                    Nemáte účet? <Link href="/register">Zaregistrujte se</Link>
+                    Nemate ucet? <Link href="/register">Zaregistrujte se</Link>
                 </p>
             </div>
         </div>

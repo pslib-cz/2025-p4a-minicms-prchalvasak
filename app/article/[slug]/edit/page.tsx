@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Alert, Spinner } from "react-bootstrap";
 import Header from "@/app/components/Header";
 import ArticleEditorForm, {
   type ArticleFormPayload,
@@ -38,7 +37,7 @@ export default function EditArticlePage() {
         const data = await response.json();
 
         if (!response.ok) {
-          setError(data.error || "Načtení článku selhalo.");
+          setError(data.error || "Nacteni clanku selhalo.");
           return;
         }
 
@@ -51,7 +50,7 @@ export default function EditArticlePage() {
           slug: data.slug,
         });
       } catch {
-        setError("Načtení článku selhalo.");
+        setError("Nacteni clanku selhalo.");
       } finally {
         setLoading(false);
       }
@@ -83,7 +82,7 @@ export default function EditArticlePage() {
 
     const data = await response.json();
     if (!response.ok) {
-      return { error: data.error || "Úprava článku selhala." };
+      return { error: data.error || "Uprava clanku selhala." };
     }
 
     return { article: data as { slug: string } };
@@ -93,46 +92,46 @@ export default function EditArticlePage() {
     <div className="page-wrapper">
       <Header />
 
-      {loading || status === "loading" ? (
-        <div className="container" style={{ paddingTop: "40px" }}>
-          <div className="d-flex align-items-center gap-2 text-secondary">
-            <Spinner animation="border" size="sm" />
-            <span>Načítání článku…</span>
+      {(loading || status === "loading") && (
+        <div className="container" style={{ paddingTop: "32px" }}>
+          <div className="dashboard-loading">
+            <span className="spinner" />
+            <span>Nacitani clanku...</span>
           </div>
         </div>
-      ) : null}
+      )}
 
-      {!loading && status === "authenticated" && article ? (
+      {!loading && status === "authenticated" && article && (
         <ArticleEditorForm
           backHref="/dashboard"
-          backLabel="← Zpět do dashboardu"
-          heading="Upravit článek"
-          helperText="Změny se ukládají přes chráněné API a znovu validují na serveru."
+          backLabel="Zpet do dashboardu"
+          heading="Upravit clanek"
+          helperText="Zmeny se ukladaji pres chranene API a znovu validuji na serveru."
           initialValues={initialValues}
-          submitLabel="Uložit změny"
+          submitLabel="Ulozit zmeny"
           submitArticle={submitArticle}
         />
-      ) : null}
+      )}
 
-      {!loading && status === "unauthenticated" ? (
-        <div className="container" style={{ paddingTop: "40px", maxWidth: "760px" }}>
-          <Alert variant="warning">
-            Pro úpravu článku se musíte přihlásit.
-          </Alert>
+      {!loading && status === "unauthenticated" && (
+        <div className="container" style={{ paddingTop: "32px", maxWidth: "760px" }}>
+          <p className="error-text" style={{ marginBottom: "16px" }}>
+            Pro upravu clanku se musite prihlasit.
+          </p>
           <Link href="/login" className="btn btn-accent">
-            Přihlásit se
+            Prihlasit se
           </Link>
         </div>
-      ) : null}
+      )}
 
-      {!loading && error ? (
-        <div className="container" style={{ paddingTop: "40px", maxWidth: "760px" }}>
-          <Alert variant="danger">{error}</Alert>
+      {!loading && error && (
+        <div className="container" style={{ paddingTop: "32px", maxWidth: "760px" }}>
+          <p className="error-text" style={{ marginBottom: "16px" }}>{error}</p>
           <Link href="/dashboard" className="btn">
-            Zpět do dashboardu
+            Zpet do dashboardu
           </Link>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

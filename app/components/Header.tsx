@@ -1,85 +1,74 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { Menu, X } from "lucide-react";
 import { APP_NAME } from "@/lib/brand";
 
 export default function Header() {
     const { data: session, status } = useSession();
+    const [mobileOpen, setMobileOpen] = useState(false);
+
+    const navContent = (
+        <>
+            {status === "loading" && (
+                <span className="site-nav-user">Nacitani...</span>
+            )}
+            {status === "authenticated" && session?.user && (
+                <>
+                    <span className="site-nav-user">{session.user.name}</span>
+                    <Link href="/dashboard" className="btn btn-sm btn-ghost" onClick={() => setMobileOpen(false)}>
+                        Dashboard
+                    </Link>
+                    <Link href="/article/new" className="btn btn-accent btn-sm" onClick={() => setMobileOpen(false)}>
+                        + Novy clanek
+                    </Link>
+                    <button
+                        onClick={() => { signOut({ callbackUrl: "/" }); setMobileOpen(false); }}
+                        className="btn btn-sm btn-ghost"
+                    >
+                        Odhlasit se
+                    </button>
+                </>
+            )}
+            {status === "unauthenticated" && (
+                <>
+                    <Link href="/login" className="btn btn-sm btn-ghost" onClick={() => setMobileOpen(false)}>
+                        Prihlasit se
+                    </Link>
+                    <Link href="/register" className="btn btn-accent btn-sm" onClick={() => setMobileOpen(false)}>
+                        Registrace
+                    </Link>
+                </>
+            )}
+        </>
+    );
 
     return (
-        <header style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 100,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "0 32px",
-            height: "64px",
-            background: "rgba(26, 26, 30, 0.82)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            borderBottom: "1px solid var(--color-border-light)",
-        }}>
-            <Link href="/" style={{
-                fontFamily: "var(--font-heading)",
-                fontSize: "1.4rem",
-                fontWeight: 700,
-                color: "var(--color-text)",
-                textDecoration: "none",
-                letterSpacing: "-0.02em",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-            }}>
-                <span style={{
-                    color: "var(--color-accent)",
-                    fontSize: "1.6rem",
-                    lineHeight: 1,
-                }}>◆</span>
-                {APP_NAME}
-            </Link>
+        <>
+            <header className="site-header">
+                <Link href="/" className="site-logo">
+                    <span className="site-logo-icon">&#9670;</span>
+                    {APP_NAME}
+                </Link>
 
-            <nav style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-                fontSize: "0.9rem",
-            }}>
-                {status === "loading" && (
-                    <span style={{ color: "var(--color-text-muted)" }}>Načítání...</span>
-                )}
-                {status === "authenticated" && session?.user && (
-                    <>
-                        <span style={{ color: "var(--color-text-secondary)" }}>
-                            {session.user.name}
-                        </span>
-                        <Link href="/dashboard" className="btn btn-sm">
-                            Můj dashboard
-                        </Link>
-                        <Link href="/article/new" className="btn btn-accent btn-sm">
-                            + Nový článek
-                        </Link>
-                        <button
-                            onClick={() => signOut({ callbackUrl: "/" })}
-                            className="btn btn-sm"
-                        >
-                            Odhlásit se
-                        </button>
-                    </>
-                )}
-                {status === "unauthenticated" && (
-                    <>
-                        <Link href="/login" className="btn btn-sm">Přihlásit se</Link>
-                        <Link href="/register" className="btn btn-accent btn-sm">
-                            Registrace
-                        </Link>
-                    </>
-                )}
-            </nav>
-        </header>
+                <nav className="site-nav">
+                    {navContent}
+                </nav>
+
+                <button
+                    className="mobile-toggle"
+                    onClick={() => setMobileOpen(!mobileOpen)}
+                    aria-label={mobileOpen ? "Zavrit menu" : "Otevrit menu"}
+                >
+                    {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+                </button>
+            </header>
+
+            <div className={`mobile-menu ${mobileOpen ? "open" : ""}`}>
+                {navContent}
+            </div>
+        </>
     );
 }

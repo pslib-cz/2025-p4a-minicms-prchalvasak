@@ -47,7 +47,7 @@ export default function RegisterPage() {
             });
 
             if (loginResult?.error) {
-                setError("Účet vznikl, ale přihlášení selhalo. Zkuste se přihlásit ručně.");
+                setError("Ucet vznikl, ale prihlaseni selhalo. Zkuste se prihlasit rucne.");
                 setLoading(false);
                 return;
             }
@@ -66,55 +66,65 @@ export default function RegisterPage() {
         <div className="auth-wrapper">
             <div className="card auth-card">
                 <h1>Registrace</h1>
-                <p className="auth-subtitle">Vytvořte si účet v {APP_NAME}</p>
+                <p className="auth-subtitle">Vytvorte si ucet v {APP_NAME}</p>
 
-                {error && <p className="error-text" style={{ marginBottom: "20px" }}>{error}</p>}
+                {error && <p className="error-text" style={{ marginBottom: "18px" }}>{error}</p>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Jméno</label>
+                        <label className="form-label" htmlFor="reg-name">Jmeno</label>
                         <input
+                            id="reg-name"
                             className="input"
                             type="text"
-                            placeholder="Jan Novák"
+                            placeholder="Jan Novak"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            autoComplete="name"
                             required
                         />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Email</label>
+                        <label className="form-label" htmlFor="reg-email">Email</label>
                         <input
+                            id="reg-email"
                             className="input"
                             type="email"
                             placeholder="vas@email.cz"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            autoComplete="email"
                             required
                         />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Heslo</label>
+                        <label className="form-label" htmlFor="reg-password">Heslo</label>
                         <input
+                            id="reg-password"
                             className="input"
                             type="password"
-                            placeholder="••••••••"
+                            placeholder="········"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            autoComplete="new-password"
                             required
                         />
                     </div>
                     <button
                         type="submit"
                         className="btn btn-accent"
-                        style={{ width: "100%", marginTop: "24px" }}
+                        style={{ width: "100%", marginTop: "22px" }}
                         disabled={loading}
                     >
-                        {loading ? "Zakládání účtu..." : "Zaregistrovat se"}
+                        {loading ? (
+                            <><span className="spinner" /> Zakladani uctu...</>
+                        ) : (
+                            "Zaregistrovat se"
+                        )}
                     </button>
                 </form>
                 <p className="auth-footer">
-                    Máte účet? <Link href="/login">Přihlaste se</Link>
+                    Mate ucet? <Link href="/login">Prihlaste se</Link>
                 </p>
             </div>
         </div>
