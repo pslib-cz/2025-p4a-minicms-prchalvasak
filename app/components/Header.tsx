@@ -13,7 +13,7 @@ export default function Header() {
     const navContent = (
         <>
             {status === "loading" && (
-                <span className="site-nav-user">Nacitani...</span>
+                <span className="site-nav-user">Načítání...</span>
             )}
             {status === "authenticated" && session?.user && (
                 <>
@@ -22,20 +22,20 @@ export default function Header() {
                         Dashboard
                     </Link>
                     <Link href="/article/new" className="btn btn-accent btn-sm" onClick={() => setMobileOpen(false)}>
-                        + Novy clanek
+                        + Nový článek
                     </Link>
                     <button
                         onClick={() => { signOut({ callbackUrl: "/" }); setMobileOpen(false); }}
                         className="btn btn-sm btn-ghost"
                     >
-                        Odhlasit se
+                        Odhlásit se
                     </button>
                 </>
             )}
             {status === "unauthenticated" && (
                 <>
                     <Link href="/login" className="btn btn-sm btn-ghost" onClick={() => setMobileOpen(false)}>
-                        Prihlasit se
+                        Přihlásit se
                     </Link>
                     <Link href="/register" className="btn btn-accent btn-sm" onClick={() => setMobileOpen(false)}>
                         Registrace

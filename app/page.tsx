@@ -81,18 +81,18 @@ export default async function Home({ searchParams }: HomePageProps) {
         <section className="card hero-section">
           <div>
             <h1 className="hero-title">
-              {APP_NAME} pro autorske texty a redakcni vyber.
+              {APP_NAME} pro autorské texty a redakční výběr.
             </h1>
             <p className="hero-desc">
-              {APP_TAGLINE} Prochazejte vydane clanky, filtrujte temata
-              a sledujte reakce ctenaru pod kazdym textem.
+              {APP_TAGLINE} Procházejte vydané články, filtrujte témata
+              a sledujte reakce čtenářů pod každým textem.
             </p>
             <div className="hero-actions">
               <a href="#article-filters" className="btn btn-accent">
-                Prochazet clanky
+                Procházet články
               </a>
               <Link href="/dashboard" className="btn">
-                Muj dashboard
+                Můj dashboard
               </Link>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
         {/* Filters */}
         <section id="article-filters" className="card filters-section">
-          <h2 style={{ marginBottom: '14px' }}>Hledat clanky</h2>
+          <h2 style={{ marginBottom: '14px' }}>Hledat články</h2>
 
           <form method="get" className="filters-grid">
             <div className="form-group">
@@ -122,7 +122,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                 id="q"
                 name="q"
                 className="input"
-                placeholder="Hledat podle nazvu nebo obsahu..."
+                placeholder="Hledat podle názvu nebo obsahu..."
                 defaultValue={query}
               />
             </div>
@@ -137,7 +137,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                 className="select-input"
                 defaultValue={selectedCategory}
               >
-                <option value="">Vsechny kategorie</option>
+                <option value="">Všechny kategorie</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.name}>
                     {category.name}
@@ -162,11 +162,11 @@ export default async function Home({ searchParams }: HomePageProps) {
         {/* Section header */}
         <div className="section-header">
           <div>
-            <h2>Publikovane clanky</h2>
+            <h2>Publikované články</h2>
             <span className="accent-line" />
           </div>
           <p className="meta">
-            {articlePage.totalCount} vysledku, strana {articlePage.currentPage} z{" "}
+            {articlePage.totalCount} výsledků, strana {articlePage.currentPage} z{" "}
             {articlePage.totalPages}
           </p>
         </div>
@@ -176,7 +176,7 @@ export default async function Home({ searchParams }: HomePageProps) {
           <div className="card">
             <h3 style={{ marginBottom: "8px" }}>Nic nenalezeno</h3>
             <p>
-              Zkuste upravit hledany vyraz nebo vycistit aktivni filtr
+              Zkuste upravit hledaný výraz nebo vyčistit aktivní filtr
               kategorie.
             </p>
           </div>

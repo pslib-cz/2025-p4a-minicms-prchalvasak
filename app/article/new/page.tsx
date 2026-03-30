@@ -56,10 +56,10 @@ export default function NewArticlePage() {
         <ArticleEditorForm
           backHref="/dashboard"
           backLabel="Zpet do dashboardu"
-          heading="Novy clanek"
+          heading="Nový článek"
           helperText="Vytvorte draft nebo pripravte clanek k naplanovane publikaci."
           initialValues={initialValues}
-          submitLabel="Ulozit clanek"
+          submitLabel="Uložit článek"
           submitArticle={submitArticle}
         />
       )}
@@ -67,10 +67,10 @@ export default function NewArticlePage() {
       {status === "unauthenticated" && (
         <div className="container" style={{ paddingTop: "32px", maxWidth: "760px" }}>
           <p className="error-text" style={{ marginBottom: "16px" }}>
-            Musite byt prihlaseni, abyste mohli vytvorit novy clanek.
+            Musíte být přihlášeni abyste mohli vytvořit nový článek.
           </p>
           <Link href="/login" className="btn btn-accent">
-            Prihlasit se
+            Přihlásit se
           </Link>
         </div>
       )}
