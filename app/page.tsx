@@ -1,107 +1,339 @@
-import Header from "./components/Header";
-import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { Metadata } from "next";
+import Image from "next/image";
+import type { Metadata } from "next";
+import Header from "./components/Header";
+import {
+  getCategories,
+  getPublicArticlesPage,
+  PUBLIC_ARTICLES_PER_PAGE,
+} from "@/lib/actions/articles";
+import { getArticleExcerpt, parsePageParam } from "@/lib/site";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-    title: "MiniCMS – Publikační platforma",
-    description: "Platforma pro publikování článků, recenzí a dalšího obsahu.",
+  title: "MiniCMS",
+  description: "Mini CMS pro publikaci článků, recenzí a jednoduchou správu obsahu.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
-export default async function Home({
-    searchParams,
+type HomePageProps = {
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    category?: string;
+  }>;
+};
+
+function buildPageHref({
+  page,
+  query,
+  category,
 }: {
-    searchParams: Promise<{ search?: string; category?: string; page?: string }>;
+  page: number;
+  query: string;
+  category: string;
 }) {
-    const params = await searchParams;
-    const search = params.search || "";
-    const categoryId = params.category || "";
-    const page = parseInt(params.page || "1");
-    const pageSize = 6;
+  const params = new URLSearchParams();
 
-    const where: any = { published: true };
-    if (search) where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { content: { contains: search, mode: "insensitive" } },
-    ];
-    if (categoryId) where.categories = { some: { id: categoryId } };
+  if (query) {
+    params.set("q", query);
+  }
 
-    const [articles, total, categories] = await Promise.all([
-        prisma.article.findMany({
-            where, include: { author: true, categories: true },
-            orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize,
-        }),
-        prisma.article.count({ where }),
-        prisma.category.findMany({ orderBy: { name: "asc" } }),
-    ]);
+  if (category) {
+    params.set("category", category);
+  }
 
-    const pages = Math.ceil(total / pageSize);
-    const q = (p: number) => `/?page=${p}${search ? `&search=${encodeURIComponent(search)}` : ""}${categoryId ? `&category=${categoryId}` : ""}`;
+  if (page > 1) {
+    params.set("page", String(page));
+  }
 
-    return (
-        <div className="page-wrapper">
-            <Header />
-            <main className="container" style={{ paddingTop: "48px", paddingBottom: "64px" }}>
-                <div className="animate-in" style={{ marginBottom: "40px" }}>
-                    <h1>Nejčtenější články</h1>
-                    <span className="accent-line" />
+  const queryString = params.toString();
+  return queryString ? `/?${queryString}` : "/";
+}
+
+export default async function Home({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+  const query = params.q?.trim() ?? "";
+  const selectedCategory = params.category?.trim() ?? "";
+  const currentPage = parsePageParam(params.page);
+
+  const [categories, articlePage] = await Promise.all([
+    getCategories(),
+    getPublicArticlesPage({
+      page: currentPage,
+      pageSize: PUBLIC_ARTICLES_PER_PAGE,
+      search: query,
+      category: selectedCategory,
+    }),
+  ]);
+
+  const hasFilters = query.length > 0 || selectedCategory.length > 0;
+
+  return (
+    <div className="page-wrapper">
+      <Header />
+      <main
+        className="container container-wide"
+        style={{ paddingTop: "40px", paddingBottom: "72px" }}
+      >
+        <section
+          className="card hero-grid"
+          style={{
+            gap: "28px",
+            marginBottom: "28px",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <h1 style={{ marginBottom: "14px", maxWidth: "16ch" }}>
+              Objevujte články a sdílejte názory.
+            </h1>
+            <p style={{ maxWidth: "58ch", marginBottom: "24px" }}>
+              Procházejte publikované články, filtrujte podle kategorií
+              a přidávejte vlastní recenze.
+            </p>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+              <a href="#article-filters" className="btn btn-accent">
+                Procházet články
+              </a>
+              <Link href="/dashboard" className="btn">
+                Můj dashboard
+              </Link>
+            </div>
+          </div>
+
+          <div
+            style={{
+              position: "relative",
+              minHeight: "220px",
+              borderRadius: "14px",
+              overflow: "hidden",
+              border: "1px solid var(--color-border-light)",
+              background:
+                "radial-gradient(circle at top, rgba(232, 168, 73, 0.26), transparent 45%), var(--color-bg-input)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              src="/editorial-hero.svg"
+              alt="Ilustrace redakčního dashboardu"
+              fill
+              sizes="(max-width: 1100px) 100vw, 420px"
+              style={{ objectFit: "cover", opacity: 0.82 }}
+              priority
+            />
+          </div>
+        </section>
+
+        <section id="article-filters" className="card" style={{ marginBottom: "28px" }}>
+          <div style={{ marginBottom: "18px" }}>
+            <h2 style={{ marginBottom: "8px" }}>Hledat články</h2>
+          </div>
+
+          <form method="get" className="filters-grid" style={{ gap: "14px", alignItems: "end" }}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="q">
+                Vyhledat
+              </label>
+              <input
+                id="q"
+                name="q"
+                className="input"
+                placeholder="Hledat podle názvu nebo obsahu..."
+                defaultValue={query}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="category">
+                Kategorie
+              </label>
+              <select
+                id="category"
+                name="category"
+                className="select-input"
+                defaultValue={selectedCategory}
+              >
+                <option value="">Všechny kategorie</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <button type="submit" className="btn btn-accent">
+                Filtrovat
+              </button>
+              {hasFilters && (
+                <Link href="/" className="btn">
+                  Reset
+                </Link>
+              )}
+            </div>
+          </form>
+        </section>
+
+        <section style={{ marginBottom: "18px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              gap: "16px",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <h2 style={{ marginBottom: "8px" }}>Publikované články</h2>
+              <span className="accent-line" />
+            </div>
+            <p className="meta">
+              {articlePage.totalCount} výsledků, strana {articlePage.currentPage} z{" "}
+              {articlePage.totalPages}
+            </p>
+          </div>
+        </section>
+
+        {articlePage.articles.length === 0 && (
+          <div className="card">
+            <h3 style={{ marginBottom: "10px" }}>Nic nenalezeno</h3>
+            <p>
+              Zkuste upravit hledaný výraz nebo vyčistit aktivní filtr
+              kategorie.
+            </p>
+          </div>
+        )}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          {articlePage.articles.map((article) => (
+            <Link
+              key={article.id}
+              href={`/article/${article.slug}`}
+              className="card card-interactive"
+              style={{ textDecoration: "none", display: "block" }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: "16px",
+                  alignItems: "flex-start",
+                  marginBottom: "12px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div>
+                  <h3 style={{ marginBottom: "8px", fontSize: "1.35rem" }}>
+                    {article.title}
+                  </h3>
+                  <div
+                    className="meta"
+                    style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
+                  >
+                    <span className="meta-accent">{article.author.name}</span>
+                    <span>{new Date(article.publishDate).toLocaleDateString("cs-CZ")}</span>
+                    <span>{article._count.reviews} recenzí</span>
+                  </div>
                 </div>
 
-                <form method="GET" action="/" className="search-form">
-                    {categoryId && <input type="hidden" name="category" value={categoryId} />}
-                    <input className="input" type="text" name="search" placeholder="Hledat články…" defaultValue={search} />
-                    <button type="submit" className="btn btn-accent">Hledat</button>
-                    {search && <Link href={categoryId ? `/?category=${categoryId}` : "/"} className="btn">Zrušit</Link>}
-                </form>
-
-                <div className="category-filter">
-                    <Link href={search ? `/?search=${encodeURIComponent(search)}` : "/"} className={`btn btn-sm ${!categoryId ? "btn-accent" : ""}`}>Vše</Link>
-                    {categories.map((cat: any) => (
-                        <Link key={cat.id} href={`/?category=${cat.id}${search ? `&search=${encodeURIComponent(search)}` : ""}`} className={`btn btn-sm ${categoryId === cat.id ? "btn-accent" : ""}`}>
-                            {cat.name}
-                        </Link>
+                {article.categories.length > 0 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    {article.categories.map((category) => (
+                      <span key={category.id} className="tag">
+                        {category.name}
+                      </span>
                     ))}
-                </div>
-
-                {articles.length === 0 && (
-                    <p className="animate-in stagger-1" style={{ fontSize: "1.05rem" }}>
-                        Zatím žádné články. Buďte první, kdo něco napíše!
-                    </p>
+                  </div>
                 )}
+              </div>
 
-                <div className="article-list">
-                    {articles.map((article: any, i: number) => (
-                        <a key={article.id} href={`/article/${article.id}`}
-                            className={`card card-interactive animate-in stagger-${Math.min(i + 1, 8)}`}
-                            style={{ textDecoration: "none", display: "block" }}>
-                            <h3>{article.title}</h3>
-                            <p className="article-excerpt">
-                                {article.content.replace(/<[^>]*>/g, "").substring(0, 180)}...
-                            </p>
-                            <div className="meta article-meta">
-                                <span className="meta-accent">{article.author.name}</span>
-                                <span>·</span>
-                                <span>{new Date(article.publishDate).toLocaleDateString("cs-CZ")}</span>
-                                {article.categories?.map((cat: any) => (
-                                    <span key={cat.id} className="category-badge">{cat.name}</span>
-                                ))}
-                            </div>
-                        </a>
-                    ))}
-                </div>
-
-                {pages > 1 && (
-                    <div className="pagination">
-                        {page > 1 && <Link href={q(page - 1)} className="btn btn-sm">← Předchozí</Link>}
-                        {Array.from({ length: pages }, (_, i) => (
-                            <Link key={i + 1} href={q(i + 1)} className={`btn btn-sm ${i + 1 === page ? "btn-accent" : ""}`}>{i + 1}</Link>
-                        ))}
-                        {page < pages && <Link href={q(page + 1)} className="btn btn-sm">Další →</Link>}
-                    </div>
-                )}
-            </main>
+              <p
+                style={{
+                  fontSize: "0.97rem",
+                  lineHeight: "1.75",
+                  color: "var(--color-text-secondary)",
+                }}
+              >
+                {getArticleExcerpt(article.content, 210)}
+              </p>
+            </Link>
+          ))}
         </div>
-    );
+
+        {articlePage.totalPages > 1 && (
+          <nav
+            aria-label="Stránkování článků"
+            style={{
+              display: "flex",
+              gap: "10px",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              marginTop: "28px",
+            }}
+          >
+            {articlePage.currentPage > 1 ? (
+              <Link
+                href={buildPageHref({
+                  page: articlePage.currentPage - 1,
+                  query,
+                  category: selectedCategory,
+                })}
+                className="btn"
+              >
+                Předchozí
+              </Link>
+            ) : (
+              <span className="btn btn-disabled">Předchozí</span>
+            )}
+
+            {Array.from({ length: articlePage.totalPages }, (_, index) => index + 1).map(
+              (pageNumber) => (
+                <Link
+                  key={pageNumber}
+                  href={buildPageHref({
+                    page: pageNumber,
+                    query,
+                    category: selectedCategory,
+                  })}
+                  className={pageNumber === articlePage.currentPage ? "btn btn-accent" : "btn"}
+                >
+                  {pageNumber}
+                </Link>
+              ),
+            )}
+
+            {articlePage.currentPage < articlePage.totalPages ? (
+              <Link
+                href={buildPageHref({
+                  page: articlePage.currentPage + 1,
+                  query,
+                  category: selectedCategory,
+                })}
+                className="btn"
+              >
+                Další
+              </Link>
+            ) : (
+              <span className="btn btn-disabled">Další</span>
+            )}
+          </nav>
+        )}
+      </main>
+    </div>
+  );
 }

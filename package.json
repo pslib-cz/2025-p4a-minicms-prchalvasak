@@ -20,15 +20,15 @@
     "react": "19.2.3",
     "react-bootstrap": "^2.10.10",
     "react-dom": "19.2.3",
-    "react-quill-new": "^3.8.3"
+    "react-simple-wysiwyg": "^3.4.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^10.0.0",
-    "eslint-config-next": "^0.2.4",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.1.6",
     "prisma": "6",
     "tsx": "^4.21.0",
     "typescript": "^5"

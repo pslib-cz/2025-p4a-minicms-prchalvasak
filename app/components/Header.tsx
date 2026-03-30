@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Header() {
@@ -22,7 +23,7 @@ export default function Header() {
             WebkitBackdropFilter: "blur(16px)",
             borderBottom: "1px solid var(--color-border-light)",
         }}>
-            <a href="/" style={{
+            <Link href="/" style={{
                 fontFamily: "var(--font-heading)",
                 fontSize: "1.4rem",
                 fontWeight: 700,
@@ -39,7 +40,7 @@ export default function Header() {
                     lineHeight: 1,
                 }}>◆</span>
                 MiniCMS
-            </a>
+            </Link>
 
             <nav style={{
                 display: "flex",
@@ -55,12 +56,12 @@ export default function Header() {
                         <span style={{ color: "var(--color-text-secondary)" }}>
                             {session.user.name}
                         </span>
-                        <a href="/dashboard" className="btn btn-sm" style={{ textDecoration: "none" }}>
-                            Dashboard
-                        </a>
-                        <a href="/article/new" className="btn btn-accent btn-sm" style={{ textDecoration: "none" }}>
+                        <Link href="/dashboard" className="btn btn-sm">
+                            Můj dashboard
+                        </Link>
+                        <Link href="/article/new" className="btn btn-accent btn-sm">
                             + Nový článek
-                        </a>
+                        </Link>
                         <button
                             onClick={() => signOut({ callbackUrl: "/" })}
                             className="btn btn-sm"
@@ -71,10 +72,10 @@ export default function Header() {
                 )}
                 {status === "unauthenticated" && (
                     <>
-                        <a href="/login" className="btn btn-sm">Přihlásit se</a>
-                        <a href="/register" className="btn btn-accent btn-sm" style={{ textDecoration: "none" }}>
+                        <Link href="/login" className="btn btn-sm">Přihlásit se</Link>
+                        <Link href="/register" className="btn btn-accent btn-sm">
                             Registrace
-                        </a>
+                        </Link>
                     </>
                 )}
             </nav>

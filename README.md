@@ -1,90 +1,124 @@
 # MiniCMS
 
-Publikační platforma postavená na **Next.js** (App Router) s Prisma ORM a NextAuth autentizací.
-
-## Popis aplikace
-
-MiniCMS je webová aplikace pro publikování článků s recenzním systémem. Uživatelé mohou vytvářet, editovat a publikovat články s WYSIWYG editorem, přidávat recenze s hvězdičkovým hodnocením a organizovat obsah pomocí kategorií.
+MiniCMS je publikační webová aplikace postavená na `Next.js App Router`, `Prisma` a `Auth.js / NextAuth`. Obsahuje veřejnou část se seznamem a detailem článků, interní klientský dashboard pro správu vlastního obsahu a vlastní API přes Route Handlers.
 
 ## Datový model
 
-```
-User 1:N Article (autor článků)
-User 1:N Review (autor recenzí)
-Article 1:N Review (recenze článku)
-Article N:M Category (kategorizace)
-```
+### Hlavní entity
 
-**Entity:**
-- **User** – jméno, email, heslo (hashed)
-- **Article** – title, slug, content, published, publishDate, createdAt, updatedAt
-- **Review** – rating (0–5), comment, createdAt, updatedAt
-- **Category** – name
+- `User`
+- `Article`
+- `Category`
+- `Review`
 
-## Funkce
+### Povinné vztahy
+
+- `User -> Article` je vazba `1:N`
+- `Article <-> Category` je vazba `N:M`
+- `User -> Review` je vazba `1:N`
+- `Article -> Review` je vazba `1:N`
+
+### Pole článku
+
+- `title`
+- `slug`
+- `content`
+- `createdAt`
+- `updatedAt`
+- `publishDate`
+- `status` (`DRAFT | PUBLISHED`)
+
+## Implementované funkce
 
 ### Veřejná část
-- Seznam publikovaných článků (Server Component)
-- Vyhledávání podle title/textu
-- Filtrování podle kategorií
-- Stránkování
-- Detail článku s recenzemi
-- SEO: dynamická metadata, OpenGraph, canonical URL, sitemap.xml, robots.txt
 
-### Dashboard
-- Seznam vlastních článků se stránkováním
-- Vytvoření/editace článku s WYSIWYG editorem (React Quill)
-- Smazání článku
-- Přepínání draft/published
-- Správa kategorií u článků
-- Formulářová validace
+- seznam publikovaných článků postavený přes Server Components
+- detail článku na dynamické slug URL `/article/[slug]`
+- vyhledávání podle názvu i textu článku
+- filtrování podle kategorií
+- stránkování
+- dynamická metadata, Open Graph a canonical URL
+- `sitemap.xml` a `robots.txt`
+- `next/image` na homepage
+- ISR / `revalidate` pro homepage a detail článku
 
-### API
-- CRUD operace pro články (`/api/article`)
-- CRUD operace pro recenze (`/api/review`)
-- Kategorie (`/api/category`)
-- Kontrola přihlášení a vlastnictví dat
-- Server-side validace
+### Dashboard a API
 
-### Analytika
-- Microsoft Clarity (podmíněno souhlasem s cookies)
-- Cookie consent banner
+- přihlášení přes `Auth.js / NextAuth`
+- dashboard dostupný jen po přihlášení
+- klientský dashboard napojený na Route Handlers
+- výpis pouze vlastních článků se stránkováním
+- vytvoření, editace, smazání a změna statusu článku
+- server-side validace vstupů
+- kontrola vlastnictví dat v API
+- práce s kategoriemi v editoru včetně vytvoření nové kategorie
+- WYSIWYG editor pro obsah článku
+- React Bootstrap jako dashboard UI knihovna
 
-### Next.js funkce
-- `revalidate` / ISR na veřejných stránkách
-- Dynamická metadata (`generateMetadata`)
-- Dynamic routes (`/article/[id]`)
+### Analytika a consent
 
-## Tech stack
+- integrace Google Analytics 4
+- tracking se zapíná až po udělení souhlasu
+- aplikace zůstává plně funkční i bez povolené analytiky
 
-- Next.js 16 (App Router)
-- Prisma ORM + PostgreSQL
-- NextAuth (credentials provider)
-- React Bootstrap
-- React Quill (WYSIWYG)
-- Lucide React (ikony)
+## Lokální spuštění
 
-## Spuštění
+1. Nainstalujte závislosti.
 
 ```bash
-# 1. Naklonovat repozitář
-git clone <repo-url>
-cd 2025-p4a-minicms-prchalvasak
-
-# 2. Nainstalovat závislosti
 npm install
+```
 
-# 3. Nastavit prostředí
+2. Vytvořte lokální konfiguraci.
+
+```bash
 cp .env.example .env
-# Upravte .env – nastavte DATABASE_URL a AUTH_SECRET
+```
 
-# 4. Spustit migrace
+3. Nastavte proměnné prostředí:
+
+- `DATABASE_URL`
+- `AUTH_SECRET`
+- `NEXT_PUBLIC_APP_URL`
+- volitelně `NEXT_PUBLIC_GA_ID`
+
+4. Proveďte migrace a naplňte databázi demo daty.
+
+```bash
 npx prisma migrate dev
-
-# 5. Naplnit databázi demo daty
 npm run db:seed
+```
 
-# 6. Spustit vývojový server
+5. Spusťte development server.
+
+```bash
 npm run dev
 ```
 
+## Demo účet
+
+- email: `datovy@tunatours.cz`
+- heslo: `MiniCMS123!`
+
+## Skripty
+
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run start
+npm run db:seed
+```
+
+## Nasazení
+
+Projekt je připravený pro nasazení na Vercel. Před deployem nastavte stejné proměnné prostředí jako lokálně. Na produkci použijte PostgreSQL databázi.
+
+### Po deployi dokončete mimo repo
+
+- nasadit aplikaci na veřejnou URL
+- nastavit `NEXT_PUBLIC_APP_URL` na produkční doménu
+- přidat reálné `NEXT_PUBLIC_GA_ID`
+- provést Lighthouse audit a uložit screenshot nebo poznámky
+- zaregistrovat web do Google Search Console
+- zaregistrovat web do Bing Webmaster Tools

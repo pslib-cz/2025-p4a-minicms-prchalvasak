@@ -1,23 +1,36 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
-import "./globals.css";
+import { Suspense } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./globals.css";
 import Providers from "./providers";
+import Analytics from "./components/Analytics";
 import CookieConsent from "./components/CookieConsent";
-
-const inter = Inter({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-inter",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-playfair",
-});
+import { getBaseUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "MiniCMS",
-  description: "Mini CMS system",
+  metadataBase: new URL(getBaseUrl()),
+  applicationName: "MiniCMS",
+  title: {
+    default: "MiniCMS",
+    template: "%s | MiniCMS",
+  },
+  description: "Mini CMS pro publikaci článků, recenzí a správu vlastního obsahu.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "MiniCMS",
+    description: "Mini CMS pro publikaci článků, recenzí a správu vlastního obsahu.",
+    url: "/",
+    siteName: "MiniCMS",
+    locale: "cs_CZ",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MiniCMS",
+    description: "Mini CMS pro publikaci článků, recenzí a správu vlastního obsahu.",
+  },
 };
 
 export default function RootLayout({
@@ -26,10 +39,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="cs">
       <body>
-        <Providers>{children}</Providers>
-        <CookieConsent />
+        <Providers>
+          {children}
+          <CookieConsent />
+          <Suspense fallback={null}>
+            <Analytics />
+          </Suspense>
+        </Providers>
       </body>
     </html>
   );

@@ -1,58 +1,75 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Script from "next/script";
+import { Alert, Button, Stack } from "react-bootstrap";
+
+const TRACKING_CONSENT_KEY = "tracking-consent";
+const CONSENT_MAX_AGE = 60 * 60 * 24 * 180;
+
+function persistConsent(value: "accepted" | "declined") {
+  window.localStorage.setItem(TRACKING_CONSENT_KEY, value);
+  document.cookie = `${TRACKING_CONSENT_KEY}=${value}; path=/; max-age=${CONSENT_MAX_AGE}; SameSite=Lax`;
+  window.dispatchEvent(new Event("tracking-consent-changed"));
+}
 
 export default function CookieConsent() {
-    const [consent, setConsent] = useState<boolean | null>(null);
-    const [visible, setVisible] = useState(false);
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+  const [visible, setVisible] = useState(false);
 
-    useEffect(() => {
-        const stored = localStorage.getItem("cookie-consent");
-        if (stored === "true") {
-            setConsent(true);
-        } else if (stored === "false") {
-            setConsent(false);
-        } else {
-            setVisible(true);
-        }
-    }, []);
+  useEffect(() => {
+    if (!gaId) {
+      return;
+    }
 
-    const handleAccept = () => {
-        localStorage.setItem("cookie-consent", "true");
-        setConsent(true);
-        setVisible(false);
+    const storedValue = window.localStorage.getItem(TRACKING_CONSENT_KEY);
+    const timer = window.setTimeout(() => {
+      setVisible(!storedValue);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
     };
+  }, [gaId]);
 
-    const handleDecline = () => {
-        localStorage.setItem("cookie-consent", "false");
-        setConsent(false);
-        setVisible(false);
-    };
+  if (!gaId || !visible) {
+    return null;
+  }
 
-    return (
-        <>
-            {consent === true && process.env.NEXT_PUBLIC_CLARITY_ID && (
-                <Script id="clarity" strategy="afterInteractive">
-                    {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","${process.env.NEXT_PUBLIC_CLARITY_ID}");`}
-                </Script>
-            )}
-            {visible && (
-                <div style={{
-                    position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 10000,
-                    background: "var(--color-bg-elevated)", borderTop: "1px solid var(--color-border)",
-                    padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between",
-                    gap: "16px", flexWrap: "wrap",
-                }}>
-                    <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--color-text-secondary)" }}>
-                        Tento web používá analytické cookies pro zlepšení uživatelského zážitku.
-                    </p>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                        <button onClick={handleDecline} className="btn btn-sm">Odmítnout</button>
-                        <button onClick={handleAccept} className="btn btn-accent btn-sm">Přijmout</button>
-                    </div>
-                </div>
-            )}
-        </>
-    );
+  return (
+    <div className="cookie-banner">
+      <Alert variant="dark" className="mb-0 cookie-banner-alert">
+        <div className="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+          <div>
+            <strong>Souhlas se statistikami</strong>
+            <div className="text-secondary small mt-1">
+              Používáme Google Analytics pouze pro pageview statistiky. Když tracking odmítnete,
+              aplikace zůstane plně funkční.
+            </div>
+          </div>
+          <Stack direction="horizontal" gap={2}>
+            <Button
+              variant="outline-light"
+              size="sm"
+              onClick={() => {
+                persistConsent("declined");
+                setVisible(false);
+              }}
+            >
+              Nepovolit
+            </Button>
+            <Button
+              variant="warning"
+              size="sm"
+              onClick={() => {
+                persistConsent("accepted");
+                setVisible(false);
+              }}
+            >
+              Povolit analytiku
+            </Button>
+          </Stack>
+        </div>
+      </Alert>
+    </div>
+  );
 }

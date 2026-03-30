@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/prisma";
+import { normalizeTextInput, validateRegisterInput } from "@/lib/validation";
 
 export async function POST(request: Request) {
     try {
-        const { name, email, password } = await request.json();
+        const body = await request.json();
+        const name = normalizeTextInput(body.name);
+        const email = normalizeTextInput(body.email).toLowerCase();
+        const password = typeof body.password === "string" ? body.password : "";
 
-        if (!name || !email || !password) {
+        const validationError = validateRegisterInput({ name, email, password });
+
+        if (validationError) {
             return NextResponse.json(
-                { error: "Všechna pole jsou povinná" },
+                { error: validationError },
                 { status: 400 }
             );
         }
@@ -38,7 +44,7 @@ export async function POST(request: Request) {
             { id: user.id, name: user.name, email: user.email },
             { status: 201 }
         );
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "Registrace selhala" },
             { status: 500 }

@@ -1,17 +1,22 @@
-import { MetadataRoute } from "next";
-import { getAllPublishedArticles } from "@/lib/actions/articles";
+import type { MetadataRoute } from "next";
+import { getPublishedArticlePaths } from "@/lib/actions/articles";
+import { getCanonicalUrl } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const articles = await getAllPublishedArticles();
+  const articles = await getPublishedArticlePaths();
 
-    return [
-        { url: baseUrl, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
-        ...articles.map((a: { id: string; updatedAt: Date }) => ({
-            url: `${baseUrl}/article/${a.id}`,
-            lastModified: a.updatedAt,
-            changeFrequency: "weekly" as const,
-            priority: 0.8,
-        })),
-    ];
+  return [
+    {
+      url: getCanonicalUrl("/"),
+      lastModified: new Date(),
+      changeFrequency: "hourly",
+      priority: 1,
+    },
+    ...articles.map((article) => ({
+      url: getCanonicalUrl(`/article/${article.slug}`),
+      lastModified: article.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+  ];
 }

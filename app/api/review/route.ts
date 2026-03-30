@@ -31,7 +31,7 @@ export async function POST(request: Request) {
         const review = await createReview(articleId, rating, comment, session.user.id);
 
         return NextResponse.json(review, { status: 201 });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "Vytvoření recenze selhalo" },
             { status: 500 }
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
         const reviews = await getReviews(articleId);
 
         return NextResponse.json(reviews, { status: 200 });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "Získání recenzí selhalo" },
             { status: 500 }
@@ -106,7 +106,7 @@ export async function PUT(request: Request) {
         const review = await updateReview(id, rating, comment);
 
         return NextResponse.json(review, { status: 200 });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "Aktualizace recenze selhala" },
             { status: 500 }
@@ -151,7 +151,7 @@ export async function DELETE(request: Request) {
         const review = await deleteReview(id);
 
         return NextResponse.json({ id: review.id }, { status: 200 });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "Smazání recenze selhalo" },
             { status: 500 }

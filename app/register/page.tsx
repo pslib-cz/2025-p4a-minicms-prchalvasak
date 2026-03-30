@@ -1,35 +1,69 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getSession, signIn } from "next-auth/react";
+import { validateRegisterInput } from "@/lib/validation";
 
 export default function RegisterPage() {
+    const router = useRouter();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setLoading(true);
+
+        const validationError = validateRegisterInput({ name, email, password });
+        if (validationError) {
+            setError(validationError);
+            setLoading(false);
+            return;
+        }
+
+        const normalizedName = name.trim();
+        const normalizedEmail = email.trim().toLowerCase();
 
         const result = await fetch("/api/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ name, email, password }),
+            body: JSON.stringify({ name: normalizedName, email: normalizedEmail, password }),
         });
 
         if (result.ok) {
-            window.location.href = "/";
+            const loginResult = await signIn("credentials", {
+                email: normalizedEmail,
+                password,
+                callbackUrl: "/",
+                redirect: false,
+            });
+
+            if (loginResult?.error) {
+                setError("Účet vznikl, ale přihlášení selhalo. Zkuste se přihlásit ručně.");
+                setLoading(false);
+                return;
+            }
+
+            await getSession();
+            router.replace("/");
+            router.refresh();
         } else {
-            setError("Registrace selhala");
+            const data = await result.json();
+            setError(data.error || "Registrace selhala");
+            setLoading(false);
         }
     };
 
     return (
         <div className="auth-wrapper">
-            <div className="card auth-card animate-in">
+            <div className="card auth-card">
                 <h1>Registrace</h1>
                 <p className="auth-subtitle">Vytvořte si účet v MiniCMS</p>
 
@@ -73,12 +107,13 @@ export default function RegisterPage() {
                         type="submit"
                         className="btn btn-accent"
                         style={{ width: "100%", marginTop: "24px" }}
+                        disabled={loading}
                     >
-                        Zaregistrovat se
+                        {loading ? "Zakládání účtu..." : "Zaregistrovat se"}
                     </button>
                 </form>
                 <p className="auth-footer">
-                    Máte účet? <a href="/login">Přihlaste se</a>
+                    Máte účet? <Link href="/login">Přihlaste se</Link>
                 </p>
             </div>
         </div>
