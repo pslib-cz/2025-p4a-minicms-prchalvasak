@@ -288,7 +288,7 @@ export default function ArticlePageClient({
 
       {article.reviews.length === 0 && (
         <p style={{ color: "var(--color-text-muted)", marginTop: "18px", fontSize: "0.9rem" }}>
-          Zatim zadne recenze.
+          Zatím žádné recenze.
         </p>
       )}
 
