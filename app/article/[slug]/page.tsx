@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Header from "@/app/components/Header";
-import { getPublicArticle, getPublishedArticlePaths } from "@/lib/actions/articles";
+import { getPublicArticle } from "@/lib/actions/articles";
+import { APP_NAME } from "@/lib/brand";
 import { getArticleExcerpt, getCanonicalUrl } from "@/lib/site";
 import ArticlePageClient from "./ArticlePageClient";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 type ArticlePageProps = {
   params: Promise<{
@@ -39,7 +40,7 @@ export async function generateMetadata({
       description,
       url: canonicalUrl,
       type: "article",
-      siteName: "MiniCMS",
+      siteName: APP_NAME,
       locale: "cs_CZ",
       publishedTime: article.publishDate.toISOString(),
       authors: [article.author.name],
@@ -51,14 +52,6 @@ export async function generateMetadata({
       description,
     },
   };
-}
-
-export async function generateStaticParams() {
-  const articles = await getPublishedArticlePaths();
-
-  return articles.map((article) => ({
-    slug: article.slug,
-  }));
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {

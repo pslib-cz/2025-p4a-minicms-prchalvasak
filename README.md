@@ -1,6 +1,6 @@
-# MiniCMS
+# Inkline
 
-MiniCMS je publikační webová aplikace postavená na `Next.js App Router`, `Prisma` a `Auth.js / NextAuth`. Obsahuje veřejnou část se seznamem a detailem článků, interní klientský dashboard pro správu vlastního obsahu a vlastní API přes Route Handlers.
+Inkline je publikační webová aplikace postavená na `Next.js App Router`, `Prisma` a `Auth.js / NextAuth`. Obsahuje veřejnou část se seznamem a detailem článků, interní klientský dashboard pro správu vlastního obsahu a vlastní API přes Route Handlers.
 
 ## Datový model
 
@@ -40,7 +40,8 @@ MiniCMS je publikační webová aplikace postavená na `Next.js App Router`, `Pr
 - dynamická metadata, Open Graph a canonical URL
 - `sitemap.xml` a `robots.txt`
 - `next/image` na homepage
-- ISR / `revalidate` pro homepage a detail článku
+- ISR / `revalidate` pro homepage
+- detail článku jako dynamická serverová route `/article/[slug]`
 
 ### Dashboard a API
 
@@ -98,7 +99,7 @@ npm run dev
 ## Demo účet
 
 - email: `datovy@tunatours.cz`
-- heslo: `MiniCMS123!`
+- heslo: `Inkline123!`
 
 ## Skripty
 

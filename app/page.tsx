@@ -7,13 +7,14 @@ import {
   getPublicArticlesPage,
   PUBLIC_ARTICLES_PER_PAGE,
 } from "@/lib/actions/articles";
+import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "@/lib/brand";
 import { getArticleExcerpt, parsePageParam } from "@/lib/site";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "MiniCMS",
-  description: "Mini CMS pro publikaci článků, recenzí a jednoduchou správu obsahu.",
+  title: APP_NAME,
+  description: APP_DESCRIPTION,
   alternates: {
     canonical: "/",
   },
@@ -89,11 +90,11 @@ export default async function Home({ searchParams }: HomePageProps) {
         >
           <div>
             <h1 style={{ marginBottom: "14px", maxWidth: "16ch" }}>
-              Objevujte články a sdílejte názory.
+              {APP_NAME} pro autorské texty a redakční výběr.
             </h1>
             <p style={{ maxWidth: "58ch", marginBottom: "24px" }}>
-              Procházejte publikované články, filtrujte podle kategorií
-              a přidávejte vlastní recenze.
+              {APP_TAGLINE} Procházejte vydané články, filtrujte témata
+              a sledujte reakce čtenářů pod každým textem.
             </p>
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
               <a href="#article-filters" className="btn btn-accent">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
+import { APP_NAME } from "@/lib/brand";
 import { validateLoginInput } from "@/lib/validation";
 
 export default function LoginPage() {
@@ -53,7 +54,7 @@ export default function LoginPage() {
         <div className="auth-wrapper">
             <div className="card auth-card">
                 <h1>Přihlášení</h1>
-                <p className="auth-subtitle">Vítejte zpět v MiniCMS</p>
+                <p className="auth-subtitle">Vítejte zpět v {APP_NAME}</p>
 
                 {error && <p className="error-text" style={{ marginBottom: "20px" }}>{error}</p>}
 

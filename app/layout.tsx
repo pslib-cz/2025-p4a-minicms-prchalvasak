@@ -5,31 +5,32 @@ import "./globals.css";
 import Providers from "./providers";
 import Analytics from "./components/Analytics";
 import CookieConsent from "./components/CookieConsent";
+import { APP_DESCRIPTION, APP_NAME } from "@/lib/brand";
 import { getBaseUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseUrl()),
-  applicationName: "MiniCMS",
+  applicationName: APP_NAME,
   title: {
-    default: "MiniCMS",
-    template: "%s | MiniCMS",
+    default: APP_NAME,
+    template: `%s | ${APP_NAME}`,
   },
-  description: "Mini CMS pro publikaci článků, recenzí a správu vlastního obsahu.",
+  description: APP_DESCRIPTION,
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "MiniCMS",
-    description: "Mini CMS pro publikaci článků, recenzí a správu vlastního obsahu.",
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
     url: "/",
-    siteName: "MiniCMS",
+    siteName: APP_NAME,
     locale: "cs_CZ",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MiniCMS",
-    description: "Mini CMS pro publikaci článků, recenzí a správu vlastního obsahu.",
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
   },
 };
 

@@ -17,7 +17,7 @@ async function main() {
   await prisma.session.deleteMany();
   await prisma.user.deleteMany();
 
-  const hashedPassword = await bcrypt.hash("MiniCMS123!", 10);
+  const hashedPassword = await bcrypt.hash("Inkline123!", 10);
 
   const author = await prisma.user.create({
     data: {
@@ -177,7 +177,7 @@ async function main() {
   });
 
   console.log("Seed complete.");
-  console.log("Login: datovy@tunatours.cz / MiniCMS123!");
+  console.log("Login: datovy@tunatours.cz / Inkline123!");
 }
 
 main()

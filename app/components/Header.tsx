@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { APP_NAME } from "@/lib/brand";
 
 export default function Header() {
     const { data: session, status } = useSession();
@@ -39,7 +40,7 @@ export default function Header() {
                     fontSize: "1.6rem",
                     lineHeight: 1,
                 }}>◆</span>
-                MiniCMS
+                {APP_NAME}
             </Link>
 
             <nav style={{

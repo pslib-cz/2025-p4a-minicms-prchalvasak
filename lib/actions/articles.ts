@@ -295,16 +295,20 @@ export async function getOwnedArticleBySlug(slug: string, authorId: string) {
 }
 
 export async function getPublicArticle(slug: string) {
-  return prisma.article.findFirst({
-    where: {
-      slug,
-      status: "PUBLISHED",
-      publishDate: {
-        lte: new Date(),
+  try {
+    return await prisma.article.findFirst({
+      where: {
+        slug,
+        status: "PUBLISHED",
+        publishDate: {
+          lte: new Date(),
+        },
       },
-    },
-    ...articleDetailArgs,
-  });
+      ...articleDetailArgs,
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function getPublishedArticlePaths() {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
+import { APP_NAME } from "@/lib/brand";
 import { validateRegisterInput } from "@/lib/validation";
 
 export default function RegisterPage() {
@@ -65,7 +66,7 @@ export default function RegisterPage() {
         <div className="auth-wrapper">
             <div className="card auth-card">
                 <h1>Registrace</h1>
-                <p className="auth-subtitle">Vytvořte si účet v MiniCMS</p>
+                <p className="auth-subtitle">Vytvořte si účet v {APP_NAME}</p>
 
                 {error && <p className="error-text" style={{ marginBottom: "20px" }}>{error}</p>}
 
