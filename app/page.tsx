@@ -229,7 +229,6 @@ export default async function Home({ searchParams }: HomePageProps) {
           ))}
         </div>
 
-        {/* Pagination */}
         {articlePage.totalPages > 1 && (
           <nav aria-label="Strankovani clanku" className="pagination-nav">
             {articlePage.currentPage > 1 ? (
@@ -241,10 +240,10 @@ export default async function Home({ searchParams }: HomePageProps) {
                 })}
                 className="btn btn-sm"
               >
-                Predchozi
+                Předchozí
               </Link>
             ) : (
-              <span className="btn btn-sm btn-disabled">Predchozi</span>
+              <span className="btn btn-sm btn-disabled">Předchozí</span>
             )}
 
             {Array.from({ length: articlePage.totalPages }, (_, index) => index + 1).map(
@@ -272,10 +271,10 @@ export default async function Home({ searchParams }: HomePageProps) {
                 })}
                 className="btn btn-sm"
               >
-                Dalsi
+                Další
               </Link>
             ) : (
-              <span className="btn btn-sm btn-disabled">Dalsi</span>
+              <span className="btn btn-sm btn-disabled">Další</span>
             )}
           </nav>
         )}
