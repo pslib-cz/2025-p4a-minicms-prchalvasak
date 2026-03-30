@@ -39,6 +39,8 @@ model Review {
     article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
     authorId  String
     author    User     @relation("UserReviews", fields: [authorId], references: [id])
+
+    @@unique([articleId, authorId])
 }
 
 model Category {

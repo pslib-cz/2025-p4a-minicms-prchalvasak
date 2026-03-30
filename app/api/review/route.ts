@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { createReview, getReviews, getReview, updateReview, deleteReview } from "@/lib/actions/reviews";
@@ -31,7 +32,17 @@ export async function POST(request: Request) {
         const review = await createReview(articleId, rating, comment, session.user.id);
 
         return NextResponse.json(review, { status: 201 });
-    } catch {
+    } catch (error) {
+        if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2002"
+        ) {
+            return NextResponse.json(
+                { error: "Kazdy uzivatel muze pridat k clanku jen jednu recenzi" },
+                { status: 409 }
+            );
+        }
+
         return NextResponse.json(
             { error: "Vytvoření recenze selhalo" },
             { status: 500 }

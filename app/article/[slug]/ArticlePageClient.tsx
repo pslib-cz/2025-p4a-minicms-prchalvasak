@@ -208,6 +208,9 @@ export default function ArticlePageClient({
   };
 
   const isAuthor = session?.user?.id === article.authorId;
+  const currentUserReview = session?.user?.id
+    ? article.reviews.find((review) => review.authorId === session.user.id) ?? null
+    : null;
   const avgRating =
     article.reviews.length > 0
       ? (
@@ -368,7 +371,7 @@ export default function ArticlePageClient({
       </div>
 
       {/* Write review form */}
-      {session?.user && (
+      {session?.user && !currentUserReview && (
         <div className="card review-form-card">
           <h3>Napsat recenzi</h3>
           {reviewError && (
@@ -394,6 +397,14 @@ export default function ArticlePageClient({
               Odeslat recenzi
             </button>
           </form>
+        </div>
+      )}
+
+      {session?.user && currentUserReview && (
+        <div className="card review-login-prompt">
+          <p style={{ color: "var(--color-text-muted)", margin: 0 }}>
+            Recenzi pro tento clanek uz mate. Muzete ji upravit nebo smazat v seznamu vyse.
+          </p>
         </div>
       )}
 
