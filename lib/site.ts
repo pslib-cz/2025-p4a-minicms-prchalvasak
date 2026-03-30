@@ -1,3 +1,5 @@
+import { stripHtmlTags } from "@/lib/validation";
+
 const FALLBACK_APP_URL = "http://localhost:3000";
 
 export function getBaseUrl() {
@@ -10,7 +12,7 @@ export function getCanonicalUrl(path: string) {
 }
 
 export function getArticleExcerpt(content: string, maxLength = 160) {
-  const normalized = content.replace(/\s+/g, " ").trim();
+  const normalized = stripHtmlTags(content).replace(/\s+/g, " ").trim();
 
   if (normalized.length <= maxLength) {
     return normalized;

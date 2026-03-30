@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 import Providers from "./providers";
+import Analytics from "./components/Analytics";
+import CookieConsent from "./components/CookieConsent";
 import { getBaseUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -37,7 +41,13 @@ export default function RootLayout({
   return (
     <html lang="cs">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <CookieConsent />
+          <Suspense fallback={null}>
+            <Analytics />
+          </Suspense>
+        </Providers>
       </body>
     </html>
   );

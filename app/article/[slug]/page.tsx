@@ -9,15 +9,15 @@ export const revalidate = 60;
 
 type ArticlePageProps = {
   params: Promise<{
-    id: string;
+    slug: string;
   }>;
 };
 
 export async function generateMetadata({
   params,
 }: ArticlePageProps): Promise<Metadata> {
-  const { id } = await params;
-  const article = await getPublicArticle(id);
+  const { slug } = await params;
+  const article = await getPublicArticle(slug);
 
   if (!article) {
     return {
@@ -26,7 +26,7 @@ export async function generateMetadata({
   }
 
   const description = getArticleExcerpt(article.content, 155);
-  const canonicalUrl = getCanonicalUrl(`/article/${article.id}`);
+  const canonicalUrl = getCanonicalUrl(`/article/${article.slug}`);
 
   return {
     title: article.title,
@@ -57,13 +57,13 @@ export async function generateStaticParams() {
   const articles = await getPublishedArticlePaths();
 
   return articles.map((article) => ({
-    id: article.id,
+    slug: article.slug,
   }));
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-  const { id } = await params;
-  const article = await getPublicArticle(id);
+  const { slug } = await params;
+  const article = await getPublicArticle(slug);
 
   if (!article) {
     notFound();

@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     ...articles.map((article) => ({
-      url: getCanonicalUrl(`/article/${article.id}`),
+      url: getCanonicalUrl(`/article/${article.slug}`),
       lastModified: article.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.7,

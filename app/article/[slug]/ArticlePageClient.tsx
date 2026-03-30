@@ -127,7 +127,7 @@ export default function ArticlePageClient({
 
   const fetchArticle = async () => {
     try {
-      const response = await fetch(`/api/article/${article.id}`);
+      const response = await fetch(`/api/public/article/${article.slug}`);
 
       if (!response.ok) {
         setError("Aktualizace článku se nepodařila načíst.");
@@ -144,10 +144,10 @@ export default function ArticlePageClient({
   const handleDeleteArticle = async () => {
     if (!window.confirm("Opravdu chcete smazat tento článek?")) return;
 
-    const response = await fetch(`/api/article/${article.id}`, { method: "DELETE" });
+    const response = await fetch(`/api/article/${article.slug}`, { method: "DELETE" });
 
     if (response.ok) {
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
       return;
     }
@@ -281,7 +281,7 @@ export default function ArticlePageClient({
 
       {isAuthor && (
         <div style={{ display: "flex", gap: "10px", marginBottom: "28px", flexWrap: "wrap" }}>
-          <Link href={`/article/${article.id}/edit`} className="btn btn-sm">
+          <Link href={`/article/${article.slug}/edit`} className="btn btn-sm">
             Upravit článek
           </Link>
           <button onClick={handleDeleteArticle} className="btn btn-sm btn-danger">
@@ -292,14 +292,11 @@ export default function ArticlePageClient({
 
       <div
         className="card"
-        style={{
-          whiteSpace: "pre-wrap",
-          fontSize: "1.08rem",
-          lineHeight: "1.85",
-          color: "var(--color-text)",
-        }}
       >
-        {article.content}
+        <div
+          className="article-content"
+          dangerouslySetInnerHTML={{ __html: article.content }}
+        />
       </div>
 
       <hr className="divider" />

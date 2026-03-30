@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import Header from "./components/Header";
 import {
@@ -118,7 +119,14 @@ export default async function Home({ searchParams }: HomePageProps) {
               justifyContent: "center",
             }}
           >
-            <span style={{ fontSize: "4rem", opacity: 0.25 }}>◆</span>
+            <Image
+              src="/editorial-hero.svg"
+              alt="Ilustrace redakčního dashboardu"
+              fill
+              sizes="(max-width: 1100px) 100vw, 420px"
+              style={{ objectFit: "cover", opacity: 0.82 }}
+              priority
+            />
           </div>
         </section>
 
@@ -208,7 +216,7 @@ export default async function Home({ searchParams }: HomePageProps) {
           {articlePage.articles.map((article) => (
             <Link
               key={article.id}
-              href={`/article/${article.id}`}
+              href={`/article/${article.slug}`}
               className="card card-interactive"
               style={{ textDecoration: "none", display: "block" }}
             >

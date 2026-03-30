@@ -139,6 +139,7 @@ async function main() {
           slug: article.slug,
           content: article.content,
           publishDate: article.publishDate,
+          status: article.publishDate <= new Date() ? "PUBLISHED" : "DRAFT",
           authorId: article.authorId,
           categories: {
             connect: article.categories.map((name) => ({

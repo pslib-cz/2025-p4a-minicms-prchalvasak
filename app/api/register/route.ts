@@ -44,7 +44,7 @@ export async function POST(request: Request) {
             { id: user.id, name: user.name, email: user.email },
             { status: 201 }
         );
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "Registrace selhala" },
             { status: 500 }

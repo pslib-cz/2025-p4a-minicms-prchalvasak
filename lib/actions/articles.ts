@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, type ArticleStatus } from "@prisma/client";
 import prisma from "@/lib/prisma";
 
 export const PUBLIC_ARTICLES_PER_PAGE = 5;
@@ -84,6 +84,7 @@ type ArticleListFilters = {
   category?: string;
   authorId?: string;
   publishedOnly?: boolean;
+  status?: ArticleStatus;
 };
 
 function normalizePage(page?: number) {
@@ -99,12 +100,14 @@ function buildArticleWhere({
   category,
   authorId,
   publishedOnly,
+  status,
 }: ArticleListFilters): Prisma.ArticleWhereInput {
   const and: Prisma.ArticleWhereInput[] = [];
   const normalizedSearch = search?.trim();
 
   if (publishedOnly) {
     and.push({
+      status: "PUBLISHED",
       publishDate: {
         lte: new Date(),
       },
@@ -113,6 +116,10 @@ function buildArticleWhere({
 
   if (authorId) {
     and.push({ authorId });
+  }
+
+  if (status) {
+    and.push({ status });
   }
 
   if (category) {
@@ -270,10 +277,28 @@ export async function getArticle(id: string) {
   });
 }
 
-export async function getPublicArticle(id: string) {
+export async function getArticleBySlug(slug: string) {
+  return prisma.article.findUnique({
+    where: { slug },
+    ...articleDetailArgs,
+  });
+}
+
+export async function getOwnedArticleBySlug(slug: string, authorId: string) {
   return prisma.article.findFirst({
     where: {
-      id,
+      slug,
+      authorId,
+    },
+    ...articleDetailArgs,
+  });
+}
+
+export async function getPublicArticle(slug: string) {
+  return prisma.article.findFirst({
+    where: {
+      slug,
+      status: "PUBLISHED",
       publishDate: {
         lte: new Date(),
       },
@@ -286,12 +311,13 @@ export async function getPublishedArticlePaths() {
   try {
     return await prisma.article.findMany({
       where: {
+        status: "PUBLISHED",
         publishDate: {
           lte: new Date(),
         },
       },
       select: {
-        id: true,
+        slug: true,
         updatedAt: true,
       },
       orderBy: {
@@ -309,6 +335,7 @@ export async function createArticle(
   publishDate: Date,
   authorId: string,
   categoryIds: string[] = [],
+  status: ArticleStatus = "DRAFT",
 ) {
   const slug = await buildUniqueSlug(title);
 
@@ -318,6 +345,7 @@ export async function createArticle(
       slug,
       content,
       publishDate,
+      status,
       authorId,
       ...(categoryIds.length > 0
         ? {
@@ -331,21 +359,32 @@ export async function createArticle(
 }
 
 export async function updateArticle(
-  id: string,
+  slug: string,
   title: string,
   content: string,
   publishDate: Date,
+  status: ArticleStatus,
   categoryIds?: string[],
 ) {
-  const slug = await buildUniqueSlug(title, id);
+  const existing = await prisma.article.findUnique({
+    where: { slug },
+    select: { id: true },
+  });
+
+  if (!existing) {
+    throw new Error("ARTICLE_NOT_FOUND");
+  }
+
+  const uniqueSlug = await buildUniqueSlug(title, existing.id);
 
   return prisma.article.update({
-    where: { id },
+    where: { slug },
     data: {
       title,
-      slug,
+      slug: uniqueSlug,
       content,
       publishDate,
+      status,
       ...(categoryIds
         ? {
             categories: {
@@ -357,8 +396,8 @@ export async function updateArticle(
   });
 }
 
-export async function deleteArticle(id: string) {
+export async function deleteArticle(slug: string) {
   return prisma.article.delete({
-    where: { id },
+    where: { slug },
   });
 }
