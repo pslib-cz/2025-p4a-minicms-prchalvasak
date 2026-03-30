@@ -47,7 +47,7 @@ export default function RegisterPage() {
             });
 
             if (loginResult?.error) {
-                setError("Ucet vznikl, ale prihlaseni selhalo. Zkuste se prihlasit rucne.");
+                setError("Účet vznikl, ale přihlášení selhalo. Zkuste se přihlásit ručně.");
                 setLoading(false);
                 return;
             }
@@ -66,13 +66,13 @@ export default function RegisterPage() {
         <div className="auth-wrapper">
             <div className="card auth-card">
                 <h1>Registrace</h1>
-                <p className="auth-subtitle">Vytvorte si ucet v {APP_NAME}</p>
+                <p className="auth-subtitle">Vytvořte si účet v {APP_NAME}</p>
 
                 {error && <p className="error-text" style={{ marginBottom: "18px" }}>{error}</p>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label" htmlFor="reg-name">Jmeno</label>
+                        <label className="form-label" htmlFor="reg-name">Jméno</label>
                         <input
                             id="reg-name"
                             className="input"
@@ -117,14 +117,14 @@ export default function RegisterPage() {
                         disabled={loading}
                     >
                         {loading ? (
-                            <><span className="spinner" /> Zakladani uctu...</>
+                            <><span className="spinner" /> Zakládání účtu...</>
                         ) : (
                             "Zaregistrovat se"
                         )}
                     </button>
                 </form>
                 <p className="auth-footer">
-                    Mate ucet? <Link href="/login">Prihlaste se</Link>
+                    Mate ucet? <Link href="/login">Přihlásit se</Link>
                 </p>
             </div>
         </div>

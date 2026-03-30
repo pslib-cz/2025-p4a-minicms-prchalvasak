@@ -45,7 +45,7 @@ export default function LoginPage() {
                 router.refresh();
             }
         } catch {
-            setError("Prihlaseni selhalo");
+            setError("Přihlášení selhalo");
             setLoading(false);
         }
     };
@@ -53,8 +53,8 @@ export default function LoginPage() {
     return (
         <div className="auth-wrapper">
             <div className="card auth-card">
-                <h1>Prihlaseni</h1>
-                <p className="auth-subtitle">Vitejte zpet v {APP_NAME}</p>
+                <h1>Přihlášení</h1>
+                <p className="auth-subtitle">Vítejte zpět v {APP_NAME}</p>
 
                 {error && <p className="error-text" style={{ marginBottom: "18px" }}>{error}</p>}
 
@@ -92,14 +92,14 @@ export default function LoginPage() {
                         disabled={loading}
                     >
                         {loading ? (
-                            <><span className="spinner" /> Prihlasovani...</>
+                            <><span className="spinner" /> Přihlašování...</>
                         ) : (
-                            "Prihlasit se"
+                            "Přihlásit se"
                         )}
                     </button>
                 </form>
                 <p className="auth-footer">
-                    Nemate ucet? <Link href="/register">Zaregistrujte se</Link>
+                    Nemáte účet? <Link href="/register">Zaregistrujte se</Link>
                 </p>
             </div>
         </div>

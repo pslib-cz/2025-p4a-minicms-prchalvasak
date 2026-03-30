@@ -96,7 +96,7 @@ export default function EditArticlePage() {
         <div className="container" style={{ paddingTop: "32px" }}>
           <div className="dashboard-loading">
             <span className="spinner" />
-            <span>Nacitani clanku...</span>
+            <span>Načítání článku...</span>
           </div>
         </div>
       )}
@@ -116,10 +116,10 @@ export default function EditArticlePage() {
       {!loading && status === "unauthenticated" && (
         <div className="container" style={{ paddingTop: "32px", maxWidth: "760px" }}>
           <p className="error-text" style={{ marginBottom: "16px" }}>
-            Pro upravu clanku se musite prihlasit.
+            Pro úpravu článku se musíte přihlásit.
           </p>
           <Link href="/login" className="btn btn-accent">
-            Prihlasit se
+            Přihlásit se
           </Link>
         </div>
       )}
@@ -128,7 +128,7 @@ export default function EditArticlePage() {
         <div className="container" style={{ paddingTop: "32px", maxWidth: "760px" }}>
           <p className="error-text" style={{ marginBottom: "16px" }}>{error}</p>
           <Link href="/dashboard" className="btn">
-            Zpet do dashboardu
+            Zpět do dashboardu
           </Link>
         </div>
       )}
