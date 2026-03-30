@@ -47,7 +47,7 @@ export default function NewArticlePage() {
         <div className="container" style={{ paddingTop: "32px" }}>
           <div className="dashboard-loading">
             <span className="spinner" />
-            <span>Nacitani...</span>
+            <span>Načítání...</span>
           </div>
         </div>
       )}
@@ -57,7 +57,7 @@ export default function NewArticlePage() {
           backHref="/dashboard"
           backLabel="Zpet do dashboardu"
           heading="Nový článek"
-          helperText="Vytvorte draft nebo pripravte clanek k naplanovane publikaci."
+          helperText="Vytvořte draft nebo připravte článek k naplánované publikaci."
           initialValues={initialValues}
           submitLabel="Uložit článek"
           submitArticle={submitArticle}

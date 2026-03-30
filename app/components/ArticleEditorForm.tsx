@@ -82,14 +82,14 @@ export default function ArticleEditorForm({
       try {
         const response = await fetch("/api/category");
         if (!response.ok) {
-          setError("Nacteni kategorii selhalo.");
+          setError("Načtení kategorií selhalo.");
           return;
         }
 
         const data = (await response.json()) as CategoryOption[];
         setCategories(data);
       } catch {
-        setError("Nacteni kategorii selhalo.");
+        setError("Načtení kategorií selhalo.");
       } finally {
         setLoadingCategories(false);
       }
@@ -163,7 +163,7 @@ export default function ArticleEditorForm({
       const data = await response.json();
 
       if (!response.ok) {
-        setCategoryError(data.error || "Vytvoreni kategorie selhalo.");
+        setCategoryError(data.error || "Vytvoření kategorie selhalo.");
         return;
       }
 
@@ -177,7 +177,7 @@ export default function ArticleEditorForm({
       setNewCategoryName("");
       setShowCategoryModal(false);
     } catch {
-      setCategoryError("Vytvoreni kategorie selhalo.");
+      setCategoryError("Vytvoření kategorie selhalo.");
     } finally {
       setCreatingCategory(false);
     }
@@ -203,16 +203,15 @@ export default function ArticleEditorForm({
         {error && <p className="error-text" style={{ marginBottom: "18px" }}>{error}</p>}
 
         <form onSubmit={handleSubmit}>
-          {/* Title + Status + Date row */}
           <div className="editor-fields-row">
             <div className="form-group editor-field-title">
-              <label className="form-label" htmlFor="article-title">Nazev</label>
+              <label className="form-label" htmlFor="article-title">Název</label>
               <input
                 id="article-title"
                 className="input"
                 type="text"
                 value={title}
-                placeholder="Zadejte titulek clanku"
+                placeholder="Zadejte titulek článku"
                 onChange={(event) => setTitle(event.target.value)}
               />
             </div>
@@ -242,9 +241,8 @@ export default function ArticleEditorForm({
             </div>
           </div>
 
-          {/* WYSIWYG Editor */}
           <div className="editor-content-section">
-            <div className="editor-content-label">Obsah clanku</div>
+            <div className="editor-content-label">Obsah článku</div>
             <div className="editor-shell">
               <Editor
                 value={content}
@@ -259,12 +257,10 @@ export default function ArticleEditorForm({
               />
             </div>
             <div className="editor-content-footer">
-              <span>Pouzijte zakladni formatovani, seznamy a odkazy.</span>
-              <span>{plainTextLength} znaku cisteho textu</span>
+              <span>Použijte základní formátování, seznamy a odkazy.</span>
+              <span>{plainTextLength} znaků čistého textu</span>
             </div>
           </div>
-
-          {/* Categories */}
           <div className="editor-categories-header">
             <span className="form-label" style={{ margin: 0 }}>Kategorie</span>
             <button
@@ -272,14 +268,14 @@ export default function ArticleEditorForm({
               className="btn btn-sm"
               onClick={() => setShowCategoryModal(true)}
             >
-              + Pridat kategorii
+              + Přidat kategorii
             </button>
           </div>
 
           {loadingCategories ? (
             <div className="dashboard-loading">
               <span className="spinner" />
-              <span>Nacitani kategorii...</span>
+              <span>Načítání kategorií...</span>
             </div>
           ) : (
             <div className="checkbox-grid">
@@ -304,14 +300,13 @@ export default function ArticleEditorForm({
             </div>
           )}
 
-          {/* Footer */}
           <div className="editor-footer">
             <span className="editor-footer-hint">
-              Published + budouci datum = naplanovany clanek.
+              Published + budoucí datum = naplánovaný článek.
             </span>
             <button type="submit" className="btn btn-accent" disabled={submitting}>
               {submitting ? (
-                <><span className="spinner" /> Ukladani...</>
+                <><span className="spinner" /> Ukládání...</>
               ) : (
                 submitLabel
               )}
