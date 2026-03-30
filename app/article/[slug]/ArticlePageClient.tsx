@@ -305,11 +305,11 @@ export default function ArticlePageClient({
               >
                 <form onSubmit={handleEditReview}>
                   <div className="form-group">
-                    <label className="form-label">Hodnoceni</label>
+                    <label className="form-label">Hodnocení</label>
                     <InteractiveStarRating value={editRating} onChange={setEditRating} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Komentar</label>
+                    <label className="form-label">Komentář</label>
                     <textarea
                       className="textarea"
                       value={editComment}
@@ -319,14 +319,14 @@ export default function ArticlePageClient({
                   </div>
                   <div className="review-actions" style={{ marginTop: "14px" }}>
                     <button type="submit" className="btn btn-accent btn-sm">
-                      Ulozit
+                      Uložit
                     </button>
                     <button
                       type="button"
                       className="btn btn-sm"
                       onClick={() => setEditingReviewId(null)}
                     >
-                      Zrusit
+                      Zrušit
                     </button>
                   </div>
                 </form>
@@ -370,7 +370,6 @@ export default function ArticlePageClient({
         })}
       </div>
 
-      {/* Write review form */}
       {session?.user && !currentUserReview && (
         <div className="card review-form-card">
           <h3>Napsat recenzi</h3>
@@ -379,14 +378,14 @@ export default function ArticlePageClient({
           )}
           <form onSubmit={handleSubmitReview}>
             <div className="form-group">
-              <label className="form-label">Hodnoceni</label>
+              <label className="form-label">Hodnocení</label>
               <InteractiveStarRating value={reviewRating} onChange={setReviewRating} />
             </div>
             <div className="form-group">
-              <label className="form-label">Vas komentar</label>
+              <label className="form-label">Váš komentář</label>
               <textarea
                 className="textarea"
-                placeholder="Napiste svuj nazor na clanek..."
+                placeholder="Napište svůj názor na článek..."
                 value={reviewComment}
                 onChange={(event) => setReviewComment(event.target.value)}
                 rows={3}
@@ -403,7 +402,7 @@ export default function ArticlePageClient({
       {session?.user && currentUserReview && (
         <div className="card review-login-prompt">
           <p style={{ color: "var(--color-text-muted)", margin: 0 }}>
-            Recenzi pro tento clanek uz mate. Muzete ji upravit nebo smazat v seznamu vyse.
+            Recenzi pro tento článek už máte. Můžete ji upravit nebo smazat v seznamu výše.
           </p>
         </div>
       )}
@@ -411,7 +410,7 @@ export default function ArticlePageClient({
       {!session?.user && (
         <div className="card review-login-prompt">
           <p style={{ color: "var(--color-text-muted)", margin: 0 }}>
-            <Link href="/login">Prihlaste se</Link> pro pridani recenze.
+            <Link href="/login">Přihlaste se</Link> pro přidání recenze.
           </p>
         </div>
       )}
