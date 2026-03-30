@@ -124,7 +124,7 @@ export default function RegisterPage() {
                     </button>
                 </form>
                 <p className="auth-footer">
-                    Mate ucet? <Link href="/login">Přihlásit se</Link>
+                    Máte účet? <Link href="/login">Přihlásit se</Link>
                 </p>
             </div>
         </div>
