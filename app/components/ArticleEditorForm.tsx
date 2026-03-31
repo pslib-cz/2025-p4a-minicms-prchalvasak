@@ -143,7 +143,6 @@ export default function ArticleEditorForm({
 
     if (result.article?.slug) {
       router.push(`/article/${result.article.slug}`);
-      router.refresh();
     }
   };
 

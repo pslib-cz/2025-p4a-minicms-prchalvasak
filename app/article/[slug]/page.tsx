@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Header from "@/app/components/Header";
-import { getPublicArticle } from "@/lib/actions/articles";
+import { getPublicArticle, getOwnedArticleBySlug } from "@/lib/actions/articles";
+import { auth } from "@/lib/auth";
 import { APP_NAME } from "@/lib/brand";
 import { getArticleExcerpt, getCanonicalUrl } from "@/lib/site";
 import ArticlePageClient from "./ArticlePageClient";
@@ -14,15 +15,39 @@ type ArticlePageProps = {
   }>;
 };
 
+async function resolveArticle(slug: string) {
+  const publicArticle = await getPublicArticle(slug);
+  if (publicArticle) {
+    return { article: publicArticle, isOwnerPreview: false };
+  }
+
+  const session = await auth();
+  if (session?.user?.id) {
+    const ownedArticle = await getOwnedArticleBySlug(slug, session.user.id);
+    if (ownedArticle) {
+      return { article: ownedArticle, isOwnerPreview: true };
+    }
+  }
+
+  return { article: null, isOwnerPreview: false };
+}
+
 export async function generateMetadata({
   params,
 }: ArticlePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getPublicArticle(slug);
+  const { article, isOwnerPreview } = await resolveArticle(slug);
 
   if (!article) {
     return {
       title: "Článek nenalezen",
+    };
+  }
+
+  if (isOwnerPreview) {
+    return {
+      title: `${article.title} (náhled)`,
+      robots: { index: false },
     };
   }
 
@@ -56,7 +81,7 @@ export async function generateMetadata({
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params;
-  const article = await getPublicArticle(slug);
+  const { article, isOwnerPreview } = await resolveArticle(slug);
 
   if (!article) {
     notFound();
@@ -65,7 +90,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   return (
     <div className="page-wrapper">
       <Header />
-      <ArticlePageClient initialArticle={article} />
+      <ArticlePageClient initialArticle={article} isOwnerPreview={isOwnerPreview} />
     </div>
   );
 }

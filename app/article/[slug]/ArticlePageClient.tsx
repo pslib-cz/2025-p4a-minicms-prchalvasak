@@ -92,10 +92,12 @@ function InteractiveStarRating({
 
 type ArticlePageClientProps = {
   initialArticle: ArticleDetail;
+  isOwnerPreview?: boolean;
 };
 
 export default function ArticlePageClient({
   initialArticle,
+  isOwnerPreview = false,
 }: ArticlePageClientProps) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -133,7 +135,6 @@ export default function ArticlePageClient({
 
     if (response.ok) {
       router.push("/dashboard");
-      router.refresh();
       return;
     }
 
@@ -224,6 +225,20 @@ export default function ArticlePageClient({
       <Link href="/" className="back-link">
         ← Zpet na clanky
       </Link>
+
+      {isOwnerPreview && (
+        <div className="preview-banner">
+          <span className={`badge ${article.status === "DRAFT" ? "badge-draft" : "badge-scheduled"}`}>
+            {article.status === "DRAFT" ? "Draft" : "Naplánováno"}
+          </span>
+          <span>
+            Tento článek není veřejný.{" "}
+            {article.status === "DRAFT"
+              ? "Publikujte ho, aby byl viditelný pro ostatní."
+              : "Bude zveřejněn " + new Date(article.publishDate).toLocaleDateString("cs-CZ") + "."}
+          </span>
+        </div>
+      )}
 
       {/* Article header */}
       <div className="article-header">
