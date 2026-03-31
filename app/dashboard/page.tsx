@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Header from "@/app/components/Header";
+import Footer from "@/app/components/Footer";
 import DashboardClient from "./DashboardClient";
 import { auth } from "@/lib/auth";
 import { parsePageParam } from "@/lib/site";
@@ -26,6 +27,7 @@ export default async function DashboardPage({
     <div className="page-wrapper">
       <Header />
       <DashboardClient initialPage={currentPage} />
+      <Footer />
     </div>
   );
 }

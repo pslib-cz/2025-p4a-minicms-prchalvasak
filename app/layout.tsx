@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 import Providers from "./providers";
@@ -40,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs">
+    <html lang="cs" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body>
         <Providers>
           {children}

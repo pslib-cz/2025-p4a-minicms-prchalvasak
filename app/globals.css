@@ -22,8 +22,8 @@
   --color-success: #5cb87a;
 
   --font-heading: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-  --font-body: "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-mono: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  --font-body: var(--font-geist-sans), "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), "SF Mono", "Fira Code", monospace;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -352,7 +352,7 @@ p {
   gap: 12px;
   padding: 12px 18px;
   margin-bottom: 24px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   border: 1px dashed var(--color-border);
   background: rgba(160, 154, 148, 0.06);
   font-size: 0.88rem;
@@ -1390,4 +1390,184 @@ p {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ===========================
+   TOAST NOTIFICATIONS
+   =========================== */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1300;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-elevated);
+  font-size: 0.875rem;
+  color: var(--color-text);
+  pointer-events: auto;
+  cursor: pointer;
+  animation: toast-in 0.25s ease-out;
+  max-width: 380px;
+}
+
+.toast-icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.toast-success .toast-icon { color: var(--color-success); }
+.toast-error .toast-icon { color: var(--color-error); }
+.toast-info .toast-icon { color: var(--color-accent); }
+
+.toast-success { border-color: rgba(92, 184, 122, 0.3); }
+.toast-error { border-color: rgba(232, 92, 74, 0.3); }
+.toast-info { border-color: rgba(232, 168, 73, 0.3); }
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===========================
+   CONFIRM DIALOG
+   =========================== */
+.confirm-dialog {
+  animation: confirm-in 0.2s ease-out;
+}
+
+.confirm-message {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+@keyframes confirm-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===========================
+   FOOTER
+   =========================== */
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  padding: 32px 20px;
+  margin-top: 48px;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-links a {
+  font-size: 0.825rem;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+  color: var(--color-accent);
+}
+
+.footer-copy {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+}
+
+/* ===========================
+   404 PAGE
+   =========================== */
+.not-found-page {
+  padding-top: 80px;
+  padding-bottom: 64px;
+  text-align: center;
+}
+
+.not-found-code {
+  font-family: var(--font-heading);
+  font-size: 5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin-bottom: 8px;
+  letter-spacing: -0.04em;
+}
+
+.not-found-page h1 {
+  margin-bottom: 12px;
+}
+
+.not-found-page p {
+  max-width: 36ch;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+
+.not-found-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ===========================
+   READING TIME
+   =========================== */
+.reading-time {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
 }

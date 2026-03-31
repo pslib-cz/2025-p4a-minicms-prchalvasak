@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useToast } from "@/app/components/Toast";
+import { useConfirm } from "@/app/components/ConfirmDialog";
 
 type DashboardArticle = {
   id: string;
@@ -46,6 +48,8 @@ export default function DashboardClient({ initialPage }: DashboardClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
+  const { confirm } = useConfirm();
   const [pageData, setPageData] = useState<DashboardArticlePage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -105,27 +109,32 @@ export default function DashboardClient({ initialPage }: DashboardClientProps) {
     setPageData(data as DashboardArticlePage);
   };
 
-  const handleDelete = async (slug: string) => {
-    if (!window.confirm("Opravdu chcete tento clanek smazat?")) {
-      return;
-    }
+  const handleDelete = async (article: DashboardArticle) => {
+    const confirmed = await confirm({
+      title: "Smazat článek",
+      message: `Opravdu chcete smazat „${article.title}"? Tuto akci nelze vrátit zpět.`,
+      confirmLabel: "Smazat",
+      variant: "danger",
+    });
+    if (!confirmed) return;
 
-    setBusySlug(slug);
+    setBusySlug(article.slug);
     try {
-      const response = await fetch(`/api/article/${slug}`, {
+      const response = await fetch(`/api/article/${article.slug}`, {
         method: "DELETE",
       });
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Smazani clanku selhalo.");
+        toast(data.error || "Smazání článku selhalo.", "error");
         return;
       }
 
+      toast("Článek byl smazán");
       await reloadCurrentPage();
       router.refresh();
     } catch {
-      setError("Smazani clanku selhalo.");
+      toast("Smazání článku selhalo.", "error");
     } finally {
       setBusySlug(null);
     }
@@ -146,14 +155,15 @@ export default function DashboardClient({ initialPage }: DashboardClientProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Zmena stavu clanku selhala.");
+        toast(data.error || "Změna stavu článku selhala.", "error");
         return;
       }
 
+      toast(nextStatus === "PUBLISHED" ? "Článek byl publikován" : "Článek přepnut na draft");
       await reloadCurrentPage();
       router.refresh();
     } catch {
-      setError("Zmena stavu clanku selhala.");
+      toast("Změna stavu článku selhala.", "error");
     } finally {
       setBusySlug(null);
     }
@@ -260,10 +270,10 @@ export default function DashboardClient({ initialPage }: DashboardClientProps) {
                         </button>
                         <button
                           className="btn btn-sm btn-danger"
-                          onClick={() => void handleDelete(article.slug)}
+                          onClick={() => void handleDelete(article)}
                           disabled={isBusy}
                         >
-                          {isBusy ? "Probiha..." : "Smazat"}
+                          {isBusy ? "Probíhá..." : "Smazat"}
                         </button>
                       </div>
                     </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Header from "@/app/components/Header";
+import Footer from "@/app/components/Footer";
 import { getPublicArticle, getOwnedArticleBySlug } from "@/lib/actions/articles";
 import { auth } from "@/lib/auth";
 import { APP_NAME } from "@/lib/brand";
@@ -91,6 +92,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     <div className="page-wrapper">
       <Header />
       <ArticlePageClient initialArticle={article} isOwnerPreview={isOwnerPreview} />
+      <Footer />
     </div>
   );
 }

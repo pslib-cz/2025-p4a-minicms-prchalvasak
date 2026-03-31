@@ -6,17 +6,14 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Star, ThumbsDown } from "lucide-react";
 import type { ArticleDetail } from "@/lib/actions/articles";
-
-function ratingLabel(rating: number): string {
-  if (rating === 0) return "odpad!";
-  return "\u2605".repeat(rating) + "\u2606".repeat(5 - rating);
-}
+import { useToast } from "@/app/components/Toast";
+import { useConfirm } from "@/app/components/ConfirmDialog";
+import { readingTime } from "@/lib/format";
 
 function StarRating({ rating }: { rating: number }) {
   if (rating === 0) {
     return (
       <span className="star-row" style={{ color: "var(--color-error)", fontWeight: 600 }}>
-        <span>{ratingLabel(rating)}</span>
         <ThumbsDown size={16} strokeWidth={2.5} />
       </span>
     );
@@ -101,8 +98,11 @@ export default function ArticlePageClient({
 }: ArticlePageClientProps) {
   const router = useRouter();
   const { data: session } = useSession();
+  const { toast } = useToast();
+  const { confirm } = useConfirm();
   const [article, setArticle] = useState(initialArticle);
   const [error, setError] = useState("");
+  const [busyAction, setBusyAction] = useState<string | null>(null);
 
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
@@ -117,29 +117,74 @@ export default function ArticlePageClient({
       const response = await fetch(`/api/public/article/${article.slug}`);
 
       if (!response.ok) {
-        setError("Aktualizace clanku se nepodarila nacist.");
+        setError("Aktualizace článku se nepodařila načíst.");
         return;
       }
 
       const data = (await response.json()) as ArticleDetail;
       setArticle(data);
     } catch {
-      setError("Aktualizace clanku se nepodarila nacist.");
+      setError("Aktualizace článku se nepodařila načíst.");
     }
   };
 
   const handleDeleteArticle = async () => {
-    if (!window.confirm("Opravdu chcete smazat tento clanek?")) return;
+    const confirmed = await confirm({
+      title: "Smazat článek",
+      message: `Opravdu chcete smazat „${article.title}"? Tuto akci nelze vrátit zpět.`,
+      confirmLabel: "Smazat",
+      variant: "danger",
+    });
+    if (!confirmed) return;
 
+    setBusyAction("delete");
     const response = await fetch(`/api/article/${article.slug}`, { method: "DELETE" });
 
     if (response.ok) {
+      toast("Článek byl smazán");
       router.push("/dashboard");
       return;
     }
 
+    setBusyAction(null);
     const data = await response.json();
-    window.alert(data.error || "Smazani selhalo");
+    toast(data.error || "Smazání selhalo", "error");
+  };
+
+  const handleToggleStatus = async () => {
+    const nextStatus = article.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
+    const label = nextStatus === "PUBLISHED" ? "publikovat" : "přepnout na draft";
+
+    const confirmed = await confirm({
+      title: nextStatus === "PUBLISHED" ? "Publikovat článek" : "Přepnout na draft",
+      message: nextStatus === "PUBLISHED"
+        ? `Článek „${article.title}" bude zveřejněn.`
+        : `Článek „${article.title}" bude stažen z veřejného webu.`,
+      confirmLabel: nextStatus === "PUBLISHED" ? "Publikovat" : "Přepnout",
+    });
+    if (!confirmed) return;
+
+    setBusyAction("status");
+    try {
+      const response = await fetch(`/api/article/${article.slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      if (response.ok) {
+        toast(nextStatus === "PUBLISHED" ? "Článek byl publikován" : "Článek přepnut na draft");
+        router.refresh();
+        return;
+      }
+
+      const data = await response.json();
+      toast(data.error || `Nepodařilo se ${label}`, "error");
+    } catch {
+      toast(`Nepodařilo se ${label}`, "error");
+    } finally {
+      setBusyAction(null);
+    }
   };
 
   const handleSubmitReview = async (event: React.FormEvent) => {
@@ -160,15 +205,22 @@ export default function ArticlePageClient({
       setReviewComment("");
       setReviewRating(5);
       await fetchArticle();
+      toast("Recenze byla přidána");
       return;
     }
 
     const data = await response.json();
-    setReviewError(data.error || "Vytvoreni recenze selhalo");
+    setReviewError(data.error || "Vytvoření recenze selhalo");
   };
 
   const handleDeleteReview = async (reviewId: string) => {
-    if (!window.confirm("Opravdu chcete smazat tuto recenzi?")) return;
+    const confirmed = await confirm({
+      title: "Smazat recenzi",
+      message: "Opravdu chcete smazat tuto recenzi?",
+      confirmLabel: "Smazat",
+      variant: "danger",
+    });
+    if (!confirmed) return;
 
     const response = await fetch("/api/review", {
       method: "DELETE",
@@ -178,11 +230,12 @@ export default function ArticlePageClient({
 
     if (response.ok) {
       await fetchArticle();
+      toast("Recenze byla smazána");
       return;
     }
 
     const data = await response.json();
-    window.alert(data.error || "Smazani recenze selhalo");
+    toast(data.error || "Smazání recenze selhalo", "error");
   };
 
   const handleEditReview = async (event: React.FormEvent) => {
@@ -201,11 +254,12 @@ export default function ArticlePageClient({
     if (response.ok) {
       setEditingReviewId(null);
       await fetchArticle();
+      toast("Recenze byla upravena");
       return;
     }
 
     const data = await response.json();
-    window.alert(data.error || "Uprava recenze selhala");
+    toast(data.error || "Úprava recenze selhala", "error");
   };
 
   const isAuthor = session?.user?.id === article.authorId;
@@ -223,7 +277,7 @@ export default function ArticlePageClient({
   return (
     <main className="container" style={{ paddingTop: "32px", paddingBottom: "64px" }}>
       <Link href="/" className="back-link">
-        ← Zpet na clanky
+        ← Zpět na články
       </Link>
 
       {isOwnerPreview && (
@@ -247,6 +301,8 @@ export default function ArticlePageClient({
           <span className="meta-accent">{article.author.name}</span>
           <span className="sep">·</span>
           <span>{new Date(article.publishDate).toLocaleDateString("cs-CZ")}</span>
+          <span className="sep">·</span>
+          <span className="reading-time">{readingTime(article.content)}</span>
           {avgRating && (
             <>
               <span className="sep">·</span>
@@ -274,10 +330,21 @@ export default function ArticlePageClient({
       {isAuthor && (
         <div className="article-actions">
           <Link href={`/article/${article.slug}/edit`} className="btn btn-sm">
-            Upravit clanek
+            Upravit článek
           </Link>
-          <button onClick={handleDeleteArticle} className="btn btn-sm btn-danger">
-            Smazat clanek
+          <button
+            onClick={handleToggleStatus}
+            className="btn btn-sm btn-accent"
+            disabled={busyAction !== null}
+          >
+            {article.status === "PUBLISHED" ? "Přepnout na draft" : "Publikovat"}
+          </button>
+          <button
+            onClick={handleDeleteArticle}
+            className="btn btn-sm btn-danger"
+            disabled={busyAction !== null}
+          >
+            Smazat článek
           </button>
         </div>
       )}
@@ -296,7 +363,7 @@ export default function ArticlePageClient({
       <div className="reviews-section">
         <h2>
           Recenze
-          {avgRating && <span className="reviews-avg">(prumer: {avgRating}/5)</span>}
+          {avgRating && <span className="reviews-avg">(průměr: {avgRating}/5)</span>}
         </h2>
         <span className="accent-line" />
       </div>

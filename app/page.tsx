@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import {
   getCategories,
   getPublicArticlesPage,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/actions/articles";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "@/lib/brand";
 import { getArticleExcerpt, parsePageParam } from "@/lib/site";
+import { readingTime } from "@/lib/format";
 
 export const revalidate = 60;
 
@@ -207,7 +209,9 @@ export default async function Home({ searchParams }: HomePageProps) {
                     <span className="sep">·</span>
                     <span>{new Date(article.publishDate).toLocaleDateString("cs-CZ")}</span>
                     <span className="sep">·</span>
-                    <span>{article._count.reviews} recenzi</span>
+                    <span className="reading-time">{readingTime(article.content)}</span>
+                    <span className="sep">·</span>
+                    <span>{article._count.reviews} recenzí</span>
                   </div>
                 </div>
 
@@ -279,6 +283,7 @@ export default async function Home({ searchParams }: HomePageProps) {
           </nav>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

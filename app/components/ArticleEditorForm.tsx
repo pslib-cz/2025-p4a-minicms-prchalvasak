@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Editor from "react-simple-wysiwyg";
+import { useToast } from "@/app/components/Toast";
 import {
   ARTICLE_STATUSES,
   stripHtmlTags,
@@ -50,6 +51,7 @@ export default function ArticleEditorForm({
   submitArticle,
 }: ArticleEditorFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [title, setTitle] = useState(initialValues.title);
   const [content, setContent] = useState(initialValues.content);
   const [publishDate, setPublishDate] = useState(initialValues.publishDate);
@@ -75,6 +77,15 @@ export default function ArticleEditorForm({
     setStatus(initialValues.status);
     setSelectedCategoryIds(initialValues.categoryIds);
   }, [initialValues]);
+
+  useEffect(() => {
+    if (!showCategoryModal) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowCategoryModal(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [showCategoryModal]);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -142,6 +153,7 @@ export default function ArticleEditorForm({
     }
 
     if (result.article?.slug) {
+      toast("Článek byl uložen");
       router.push(`/article/${result.article.slug}`);
     }
   };
